@@ -13,17 +13,16 @@ export async function GET(req: NextRequest, { params }: { params: { cpf: string 
 
   const beneficiario = await prisma.beneficiario.findUnique({
     where: { cpf: cpfLimpo, ativo: true },
-    include: entregaId ? {
-      retiradas: { where: { entregaId } },
-    } : undefined,
   })
 
   if (!beneficiario) return NextResponse.json({ status: 'nao_cadastrado' }, { status: 200 })
 
-  const jaRetirou = entregaId ? (beneficiario.retiradas?.length ?? 0) > 0 : false
+  const jaRetirou = entregaId
+    ? (await prisma.retirada.count({ where: { beneficiarioId: beneficiario.id, entregaId } })) > 0
+    : false
 
   return NextResponse.json({
     status: jaRetirou ? 'ja_retirou' : 'pode_retirar',
-    beneficiario: { ...beneficiario, retiradas: undefined },
+    beneficiario,
   })
 }
