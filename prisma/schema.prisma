@@ -1,0 +1,78 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  superAdmin Boolean @default(false)
+  ativo     Boolean  @default(true)
+  criadoPor String?
+  criadoEm  DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model Beneficiario {
+  id        String   @id @default(cuid())
+  nome      String
+  cpf       String   @unique
+  telefone  String?
+  endereco  String?
+  bairro    String?
+
+  // Moradores por faixa etária
+  criancas     Int @default(0)  // 0-12
+  adolescentes Int @default(0)  // 13-17
+  adultos      Int @default(0)  // 18-59
+  idosos       Int @default(0)  // 60+
+
+  ativo     Boolean  @default(true)
+  criadoEm  DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  retiradas Retirada[]
+
+  @@map("beneficiarios")
+}
+
+model Entrega {
+  id        String   @id @default(cuid())
+  data      DateTime
+  local     String
+  status    EntregaStatus @default(ATIVA)
+  criadoEm  DateTime @default(now())
+  encerradaEm DateTime?
+
+  retiradas Retirada[]
+
+  @@map("entregas")
+}
+
+model Retirada {
+  id             String   @id @default(cuid())
+  beneficiarioId String
+  entregaId      String
+  retiradaEm     DateTime @default(now())
+
+  beneficiario Beneficiario @relation(fields: [beneficiarioId], references: [id])
+  entrega      Entrega      @relation(fields: [entregaId], references: [id])
+
+  @@unique([beneficiarioId, entregaId])
+  @@map("retiradas")
+}
+
+enum EntregaStatus {
+  ATIVA
+  ENCERRADA
+}
