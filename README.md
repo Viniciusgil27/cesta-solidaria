@@ -1,6 +1,6 @@
 # Cesta Solidária — AltVida
 
-Plataforma de gestão de distribuição de cestas básicas da Comunidade Batista Alternativa de Vida · Campinas.
+Plataforma de gestão de distribuição de cestas básicas da Comunidade Batista Alternativa de Vida · Jaraguá.
 
 ## Stack
 

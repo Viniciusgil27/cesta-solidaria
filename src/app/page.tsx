@@ -31,7 +31,7 @@ export default async function HomePage() {
           Cesta Solidária
         </h1>
         <p className="text-sm text-slate-500 mb-7 leading-relaxed">
-          Comunidade Batista Alternativa de Vida · Campinas
+          Comunidade Batista Alternativa de Vida · Jaraguá
         </p>
 
         {/* Info entrega */}
