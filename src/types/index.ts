@@ -9,6 +9,8 @@ export interface AdminUser {
   superAdmin: boolean
 }
 
+export type StatusCadastro = 'PENDENTE' | 'APROVADO' | 'REJEITADO'
+
 export interface Beneficiario {
   id: string
   nome: string
@@ -21,6 +23,7 @@ export interface Beneficiario {
   adultos: number
   idosos: number
   ativo: boolean
+  statusCadastro: StatusCadastro
   criadoEm: string
   jaRetirou?: boolean
 }

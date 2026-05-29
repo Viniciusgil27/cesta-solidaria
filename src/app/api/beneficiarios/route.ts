@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
   const beneficiarios = await prisma.beneficiario.findMany({
     where: {
       ativo: true,
+      statusCadastro: 'APROVADO',
       OR: busca ? [
         { nome: { contains: busca, mode: 'insensitive' } },
         { cpf: { contains: busca } },
@@ -41,9 +42,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions)
-  if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
-
   const body = await req.json()
   const { nome, cpf, telefone, endereco, bairro, criancas, adolescentes, adultos, idosos } = body
 
@@ -53,8 +51,11 @@ export async function POST(req: NextRequest) {
   const existente = await prisma.beneficiario.findUnique({ where: { cpf: cpfLimpo } })
   if (existente) return NextResponse.json({ error: 'CPF já cadastrado' }, { status: 409 })
 
+  const session = await getServerSession(authOptions)
+  const statusCadastro = session ? 'APROVADO' : 'PENDENTE'
+
   const beneficiario = await prisma.beneficiario.create({
-    data: { nome, cpf: cpfLimpo, telefone, endereco, bairro, criancas: criancas || 0, adolescentes: adolescentes || 0, adultos: adultos || 0, idosos: idosos || 0 },
+    data: { nome, cpf: cpfLimpo, telefone, endereco, bairro, criancas: criancas || 0, adolescentes: adolescentes || 0, adultos: adultos || 0, idosos: idosos || 0, statusCadastro },
   })
 
   return NextResponse.json(beneficiario, { status: 201 })
