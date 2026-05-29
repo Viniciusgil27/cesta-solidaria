@@ -1,7 +1,7 @@
 // src/app/page.tsx
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
-import { formatDate } from '@/lib/utils'
+import { formatDateTime } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,7 +41,7 @@ export default async function HomePage() {
               Próxima entrega
             </p>
             <p className="font-semibold" style={{ color: 'var(--roxo)' }}>
-              {formatDate(entrega.data)}
+              {formatDateTime(entrega.data)}
             </p>
             <p className="text-sm text-slate-500 mt-0.5">{entrega.local}</p>
           </div>

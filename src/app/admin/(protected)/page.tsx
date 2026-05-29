@@ -2,7 +2,7 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { formatDate } from '@/lib/utils'
+import { formatDateTime } from '@/lib/utils'
 import Link from 'next/link'
 import { SignOutButton } from '@/components/admin/SignOutButton'
 import { NovaEntregaButton } from '@/components/admin/NovaEntregaButton'
@@ -46,7 +46,7 @@ export default async function AdminPage() {
             {entregaAtiva ? 'Entrega ativa' : 'Nenhuma entrega ativa'}
           </p>
           <p className={`font-bold text-base ${entregaAtiva ? 'text-green-800' : 'text-amber-800'}`}>
-            {entregaAtiva ? formatDate(entregaAtiva.data) : '—'}
+            {entregaAtiva ? formatDateTime(entregaAtiva.data) : '—'}
           </p>
           <p className="text-sm text-slate-500 mt-0.5">
             {entregaAtiva ? entregaAtiva.local : 'Inicie uma nova entrega para começar a distribuição'}

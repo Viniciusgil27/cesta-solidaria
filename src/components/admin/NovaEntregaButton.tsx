@@ -7,6 +7,7 @@ export function NovaEntregaButton() {
   const router = useRouter()
   const [aberto, setAberto] = useState(false)
   const [data, setData] = useState('')
+  const [horario, setHorario] = useState('')
   const [local, setLocal] = useState('')
   const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState('')
@@ -16,12 +17,14 @@ export function NovaEntregaButton() {
   async function iniciar() {
     setErro('')
     if (!data) { setErro('Selecione a data da entrega.'); return }
+    if (!horario) { setErro('Selecione o horário da entrega.'); return }
     if (!local.trim()) { setErro('Informe o local.'); return }
     setLoading(true)
+    const dataHoraISO = new Date(`${data}T${horario}`).toISOString()
     const res = await fetch('/api/entregas', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data, local }),
+      body: JSON.stringify({ data: dataHoraISO, local }),
     })
     setLoading(false)
     if (!res.ok) { setErro('Erro ao criar entrega.'); return }
@@ -36,7 +39,7 @@ export function NovaEntregaButton() {
         <span className="text-xl">🗓️</span>
         <div className="text-left">
           <p className="text-amber-800">Nova entrega</p>
-          <p className="font-normal text-amber-600 text-xs">Definir data e zerar retiradas</p>
+          <p className="font-normal text-amber-600 text-xs">Definir data, horário e zerar retiradas</p>
         </div>
       </button>
 
@@ -55,10 +58,17 @@ export function NovaEntregaButton() {
             {erro && <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-3 text-sm text-red-700">{erro}</div>}
 
             <div className="space-y-3 mb-5">
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500 block mb-1.5">Data da entrega</label>
-                <input type="date" min={hoje} value={data} onChange={e => setData(e.target.value)}
-                  className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-purple-400 transition-colors" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wide text-slate-500 block mb-1.5">Data</label>
+                  <input type="date" min={hoje} value={data} onChange={e => setData(e.target.value)}
+                    className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-purple-400 transition-colors" />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wide text-slate-500 block mb-1.5">Horário</label>
+                  <input type="time" value={horario} onChange={e => setHorario(e.target.value)}
+                    className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-purple-400 transition-colors" />
+                </div>
               </div>
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wide text-slate-500 block mb-1.5">Local</label>

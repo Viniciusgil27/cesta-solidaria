@@ -28,7 +28,15 @@ export function formatPhone(phone: string): string {
 export function formatDate(date: string | Date): string {
   return new Date(date).toLocaleDateString('pt-BR', {
     day: '2-digit', month: '2-digit', year: 'numeric',
+    timeZone: 'America/Sao_Paulo',
   })
+}
+
+export function formatDateTime(date: string | Date): string {
+  const d = new Date(date)
+  const dataPart = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Sao_Paulo' })
+  const horaPart = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' })
+  return `${dataPart} às ${horaPart}`
 }
 
 export function totalMoradores(b: { criancas: number; adolescentes: number; adultos: number; idosos: number }) {
