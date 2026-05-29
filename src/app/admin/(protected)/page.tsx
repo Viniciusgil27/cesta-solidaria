@@ -10,17 +10,18 @@ import { NovaEntregaButton } from '@/components/admin/NovaEntregaButton'
 export const revalidate = 0
 
 async function getDados() {
-  const [entregaAtiva, totalBeneficiarios, historico] = await Promise.all([
+  const [entregaAtiva, totalBeneficiarios, totalPendentesCadastro, historico] = await Promise.all([
     prisma.entrega.findFirst({ where: { status: 'ATIVA' }, include: { _count: { select: { retiradas: true } } } }),
-    prisma.beneficiario.count({ where: { ativo: true } }),
+    prisma.beneficiario.count({ where: { ativo: true, statusCadastro: 'APROVADO' } }),
+    prisma.beneficiario.count({ where: { statusCadastro: 'PENDENTE' } }),
     prisma.entrega.findMany({ where: { status: 'ENCERRADA' }, orderBy: { criadoEm: 'desc' }, take: 3, include: { _count: { select: { retiradas: true } } } }),
   ])
-  return { entregaAtiva, totalBeneficiarios, historico }
+  return { entregaAtiva, totalBeneficiarios, totalPendentesCadastro, historico }
 }
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions)
-  const { entregaAtiva, totalBeneficiarios, historico } = await getDados()
+  const { entregaAtiva, totalBeneficiarios, totalPendentesCadastro, historico } = await getDados()
 
   const totalRetiraram = entregaAtiva?._count.retiradas ?? 0
   const totalPendentes = totalBeneficiarios - totalRetiraram
@@ -89,6 +90,19 @@ export default async function AdminPage() {
         {/* Beneficiários */}
         <div>
           <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Beneficiários</p>
+
+          {totalPendentesCadastro > 0 && (
+            <Link href="/admin/pendentes"
+              className="flex items-center gap-3 w-full rounded-xl p-4 mb-2.5 border-2 border-amber-300 bg-amber-50 hover:bg-amber-100 transition-colors">
+              <span className="text-2xl">🕐</span>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-semibold text-amber-800">Aprovar cadastros</p>
+                <p className="text-xs text-amber-600">{totalPendentesCadastro} cadastro{totalPendentesCadastro !== 1 ? 's' : ''} aguardando aprovação</p>
+              </div>
+              <span className="text-xs px-2.5 py-1 rounded-full font-bold bg-amber-400 text-amber-900">{totalPendentesCadastro}</span>
+            </Link>
+          )}
+
           <div className="grid grid-cols-2 gap-2.5">
             {[
               { href: '/admin/beneficiarios', icon: '👥', label: 'Ver cadastros', desc: 'Editar e remover' },

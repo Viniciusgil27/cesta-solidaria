@@ -12,7 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: { cpf: string 
   const entregaId = new URL(req.url).searchParams.get('entregaId')
 
   const beneficiario = await prisma.beneficiario.findUnique({
-    where: { cpf: cpfLimpo, ativo: true },
+    where: { cpf: cpfLimpo, ativo: true, statusCadastro: 'APROVADO' },
   })
 
   if (!beneficiario) return NextResponse.json({ status: 'nao_cadastrado' }, { status: 200 })
