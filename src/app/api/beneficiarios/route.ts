@@ -20,16 +20,21 @@ export async function GET(req: NextRequest) {
         { cpf: { contains: busca } },
       ] : undefined,
     },
-    include: entregaId ? {
-      retiradas: { where: { entregaId } },
-    } : undefined,
     orderBy: { nome: 'asc' },
   })
 
+  let retiradosIds = new Set<string>()
+  if (entregaId) {
+    const retiradas = await prisma.retirada.findMany({
+      where: { entregaId },
+      select: { beneficiarioId: true },
+    })
+    retiradosIds = new Set(retiradas.map((r) => r.beneficiarioId))
+  }
+
   const resultado = beneficiarios.map((b) => ({
     ...b,
-    jaRetirou: entregaId ? b.retiradas?.length > 0 : undefined,
-    retiradas: undefined,
+    jaRetirou: entregaId ? retiradosIds.has(b.id) : undefined,
   }))
 
   return NextResponse.json(resultado)
