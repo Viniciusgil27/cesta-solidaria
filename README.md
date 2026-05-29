@@ -1,140 +1,172 @@
-# Cesta Solidária AltVida
+# Cesta Solidária — AltVida
 
-Plataforma de gestão de distribuição de cestas básicas da Comunidade Batista Alternativa de Vida.
+Plataforma de gestão de distribuição de cestas básicas da Comunidade Batista Alternativa de Vida · Campinas.
 
 ## Stack
 
-- **Next.js 14** (App Router)
-- **TypeScript**
-- **TailwindCSS**
-- **Prisma ORM**
-- **PostgreSQL** via Supabase
-- **NextAuth.js** (autenticação JWT)
+| Camada | Tecnologia |
+|---|---|
+| Framework | Next.js 14 (App Router) |
+| Linguagem | TypeScript |
+| Estilo | Tailwind CSS |
+| ORM | Prisma |
+| Banco de dados | PostgreSQL via Supabase |
+| Autenticação | NextAuth.js (JWT) |
+| Exportação | SheetJS (xlsx) |
 
 ---
 
-## 1. Configurar o Supabase (banco de dados gratuito)
+## Configuração local
 
-1. Acesse [supabase.com](https://supabase.com) e crie uma conta
-2. Crie um novo projeto
-3. Vá em **Settings → Database → Connection string → URI**
-4. Copie a URL (parece com: `postgresql://postgres:[SENHA]@db.[REF].supabase.co:5432/postgres`)
+### 1. Pré-requisitos
 
----
+- Node.js 18+
+- Conta no [Supabase](https://supabase.com) (gratuito)
 
-## 2. Clonar e instalar
+### 2. Clonar e instalar
 
 ```bash
-# Clone ou copie os arquivos do projeto
+git clone https://github.com/Viniciusgil27/cesta-solidaria.git
 cd cesta-solidaria
-
-# Instale as dependências
 npm install
 ```
 
----
+### 3. Variáveis de ambiente
 
-## 3. Configurar variáveis de ambiente
-
-Edite o arquivo `.env.local`:
+Crie o arquivo `.env` na raiz do projeto:
 
 ```env
-DATABASE_URL="postgresql://postgres:[SUA_SENHA]@db.[SEU_REF].supabase.co:5432/postgres"
-NEXTAUTH_SECRET="gere-um-segredo-com: openssl rand -base64 32"
+# Supabase → Settings → Database → Connection string
+# Use "Transaction mode" para DATABASE_URL e "Session mode" para DIRECT_URL
+
+DATABASE_URL="postgresql://postgres.[REF]:[SENHA]@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.[REF]:[SENHA]@aws-1-us-east-1.pooler.supabase.com:5432/postgres"
+
+# Gere com: openssl rand -base64 32
+NEXTAUTH_SECRET="seu-segredo-forte-aqui"
+
+# Em produção, troque pela URL da Vercel
 NEXTAUTH_URL="http://localhost:3000"
 ```
 
----
-
-## 4. Criar as tabelas no banco
+### 4. Criar as tabelas
 
 ```bash
-# Gera o client Prisma
-npm run db:generate
-
-# Cria as tabelas no Supabase
-npm run db:push
+npm run db:generate   # gera o Prisma Client
+npm run db:push       # cria as tabelas no Supabase
 ```
 
----
+### 5. Criar o primeiro admin
 
-## 5. Criar o primeiro super admin (você)
-
-Edite o arquivo `prisma/seed.ts` e troque:
-- `email: 'vinicius@altvida.org'` → seu email real
-- `nome: 'Vinicius'` → seu nome
-- A senha `SenhaSuperSecreta123!` → uma senha forte
-
-Depois rode:
+Edite `prisma/seed.ts` com seu nome, email e senha, depois rode:
 
 ```bash
 npx ts-node prisma/seed.ts
 ```
 
-Pronto — seu usuário admin está criado no banco.
+O seed usa `upsert` — pode ser executado novamente para atualizar a senha se necessário.
 
----
-
-## 6. Rodar o projeto
+### 6. Rodar em desenvolvimento
 
 ```bash
 npm run dev
 ```
 
-Acesse: [http://localhost:3000](http://localhost:3000)
+Acesse [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 7. Deploy na Vercel
+## Deploy na Vercel
 
 ```bash
-# Instale a CLI da Vercel
 npm i -g vercel
-
-# Faça deploy
 vercel
-
-# Adicione as variáveis de ambiente na Vercel:
-# DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL (com sua URL da Vercel)
 ```
 
----
-
-## Fluxo de admins
-
-1. **Você** (super admin) é criado via `prisma/seed.ts`
-2. Faça login em `/admin/login`
-3. Vá em **Admins** no painel
-4. Clique em **+ Novo** para adicionar outros admins da igreja
-5. Somente o super admin pode criar, ativar/desativar ou remover outros admins
+Adicione as variáveis de ambiente no painel da Vercel (`DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL` com a URL de produção).
 
 ---
 
 ## Estrutura de páginas
 
+### Área pública
+
 | Rota | Descrição |
 |---|---|
-| `/` | Tela pública — data, local e cadastro |
-| `/cadastro` | Formulário de cadastro público |
-| `/admin/login` | Login dos admins |
-| `/admin` | Painel principal |
-| `/admin/entrega` | Validação CPF durante distribuição |
-| `/admin/beneficiarios` | Lista e edição de cadastros |
-| `/admin/importar` | Importar Excel |
-| `/admin/exportar` | Exportar relatórios |
-| `/admin/historico` | Histórico de entregas |
-| `/admin/admins` | Gerenciar admins da equipe |
+| `/` | Landing page — próxima entrega, aviso de CPF e botão de cadastro |
+| `/cadastro` | Formulário de cadastro público para beneficiários |
+| `/cadastro/sucesso` | Confirmação após cadastro enviado |
+
+### Área administrativa (`/admin`)
+
+Todas as rotas abaixo exigem autenticação.
+
+| Rota | Descrição |
+|---|---|
+| `/admin/login` | Login com email e senha |
+| `/admin` | Painel principal — stats, entrega ativa e atalhos |
+| `/admin/entrega` | Validação de CPF e confirmação de retirada em tempo real |
+| `/admin/beneficiarios` | Lista completa com busca, editar e remover |
+| `/admin/beneficiarios/novo` | Formulário de cadastro manual de família |
+| `/admin/beneficiarios/[id]` | Perfil completo da família |
+| `/admin/beneficiarios/[id]/editar` | Edição dos dados da família |
+| `/admin/historico` | Histórico de entregas encerradas com stats e exportação |
+| `/admin/importar` | Importação de base via arquivo Excel (.xlsx / .xls) |
+| `/admin/exportar` | Exportação de relatórios em Excel (5 tipos) |
+| `/admin/admins` | Gerenciamento da equipe administrativa |
 
 ---
 
-## Páginas ainda a implementar
+## Fluxo de uso
 
-As seguintes páginas têm a API pronta mas precisam da UI:
+### Distribuição de cestas
 
-- `src/app/admin/beneficiarios/page.tsx` — lista com busca, editar, remover
-- `src/app/admin/beneficiarios/novo/page.tsx` — formulário de adicionar
-- `src/app/admin/importar/page.tsx` — upload de Excel
-- `src/app/admin/exportar/page.tsx` — botões de exportação
-- `src/app/admin/historico/page.tsx` — lista de entregas encerradas
+1. Admin cria uma nova entrega (data + local) no painel
+2. No dia da entrega, acessa **Entregar cestas**
+3. Digita o CPF do beneficiário → sistema retorna: pode retirar / já retirou / não cadastrado
+4. Confirma a retirada
+5. Ao terminar, encerra a entrega — dados são salvos no histórico
 
-O padrão de todas essas páginas está no arquivo HTML `cesta-solidaria-v4.html` — basta converter para React seguindo o mesmo estilo das páginas já criadas.
+### Gestão de beneficiários
+
+- Cadastro manual via `/admin/beneficiarios/novo`
+- Importação em lote via Excel em `/admin/importar` (colunas: `nome`, `cpf`, `telefone`, `endereco`, `bairro`)
+- CPFs novos são adicionados; CPFs existentes são atualizados
+
+### Exportação de dados
+
+A partir de `/admin/exportar`:
+
+| Relatório | Conteúdo |
+|---|---|
+| Todos os cadastros | Nome, CPF, telefone, endereço, faixas etárias |
+| Quem retirou | Famílias atendidas na entrega ativa |
+| Quem não retirou | Famílias pendentes na entrega ativa |
+| Resumo da entrega | Totais e percentual de atendimento |
+| Histórico completo | Comparativo entre todas as distribuições |
+
+---
+
+## Estrutura do banco de dados
+
+```
+Admin          — equipe administrativa (email + senha bcrypt, superAdmin flag)
+Beneficiario   — famílias cadastradas (CPF único, moradores por faixa etária)
+Entrega        — distribuições (data, local, status: ATIVA | ENCERRADA)
+Retirada       — registro de quem retirou em qual entrega (unique por par)
+```
+
+---
+
+## Scripts disponíveis
+
+```bash
+npm run dev          # servidor de desenvolvimento
+npm run build        # build de produção
+npm run start        # inicia build de produção
+
+npm run db:generate  # gera Prisma Client após mudanças no schema
+npm run db:push      # aplica schema no banco sem migrations
+npm run db:migrate   # cria migration versionada
+npm run db:studio    # abre Prisma Studio (GUI do banco)
+```
