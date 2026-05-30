@@ -37,10 +37,11 @@ model Beneficiario {
   adultos      Int @default(0)  // 18-59
   idosos       Int @default(0)  // 60+
 
-  ativo          Boolean         @default(true)
-  statusCadastro StatusCadastro  @default(APROVADO)
-  criadoEm       DateTime        @default(now())
-  atualizadoEm   DateTime        @updatedAt
+  ativo           Boolean         @default(true)
+  statusCadastro  StatusCadastro  @default(APROVADO)
+  comprovanteUrl  String?
+  criadoEm        DateTime        @default(now())
+  atualizadoEm    DateTime        @updatedAt
 
   retiradas Retirada[]
 
