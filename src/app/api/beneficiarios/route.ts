@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { nome, cpf, telefone, endereco, bairro, criancas, adolescentes, adultos, idosos } = body
+  const { nome, cpf, telefone, endereco, bairro, criancas, adolescentes, adultos, idosos, comprovanteUrl } = body
 
   if (!nome || !cpf) return NextResponse.json({ error: 'Nome e CPF são obrigatórios' }, { status: 400 })
 
@@ -54,8 +54,19 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   const statusCadastro = session ? 'APROVADO' : 'PENDENTE'
 
+  // Cadastro público exige comprovante de residência
+  if (!session && !comprovanteUrl) {
+    return NextResponse.json({ error: 'Comprovante de residência obrigatório.' }, { status: 400 })
+  }
+
   const beneficiario = await prisma.beneficiario.create({
-    data: { nome, cpf: cpfLimpo, telefone, endereco, bairro, criancas: criancas || 0, adolescentes: adolescentes || 0, adultos: adultos || 0, idosos: idosos || 0, statusCadastro },
+    data: {
+      nome, cpf: cpfLimpo, telefone, endereco, bairro,
+      criancas: criancas || 0, adolescentes: adolescentes || 0,
+      adultos: adultos || 0, idosos: idosos || 0,
+      statusCadastro,
+      comprovanteUrl: comprovanteUrl || null,
+    },
   })
 
   return NextResponse.json(beneficiario, { status: 201 })

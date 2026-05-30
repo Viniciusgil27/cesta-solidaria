@@ -24,6 +24,7 @@ export interface Beneficiario {
   idosos: number
   ativo: boolean
   statusCadastro: StatusCadastro
+  comprovanteUrl?: string
   criadoEm: string
   jaRetirou?: boolean
 }

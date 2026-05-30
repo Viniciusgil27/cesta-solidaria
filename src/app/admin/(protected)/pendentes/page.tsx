@@ -9,6 +9,7 @@ export default function PendentesPage() {
   const [lista, setLista] = useState<Beneficiario[]>([])
   const [carregando, setCarregando] = useState(true)
   const [processando, setProcessando] = useState<string | null>(null)
+  const [imagemAberta, setImagemAberta] = useState<string | null>(null)
 
   const carregar = useCallback(async () => {
     setCarregando(true)
@@ -39,7 +40,7 @@ export default function PendentesPage() {
       <header className="px-5 py-4 flex items-center gap-3" style={{ background: 'var(--roxo)' }}>
         <Link href="/admin" className="text-white text-xl leading-none">‹</Link>
         <p className="text-white text-sm font-semibold flex-1">Cadastros pendentes</p>
-        {!carregando && (
+        {!carregando && lista.length > 0 && (
           <span className="text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-400 text-amber-900">
             {lista.length}
           </span>
@@ -64,51 +65,112 @@ export default function PendentesPage() {
 
         <div className="space-y-3">
           {lista.map(b => (
-            <div key={b.id} className="bg-white border-2 border-amber-200 rounded-xl p-4 space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0"
-                  style={{ background: 'var(--roxo-bg)', color: 'var(--roxo-med)' }}>
-                  {b.nome.split(' ').filter(Boolean).slice(0, 2).map(n => n[0]).join('').toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-800">{b.nome}</p>
-                  <p className="text-xs text-slate-500">{formatCPF(b.cpf)}</p>
-                  {b.telefone && <p className="text-xs text-slate-500">{b.telefone}</p>}
-                  {b.endereco && (
-                    <p className="text-xs text-slate-500 truncate">{b.endereco}{b.bairro ? ` · ${b.bairro}` : ''}</p>
-                  )}
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {totalMoradores(b)} morador{totalMoradores(b) !== 1 ? 'es' : ''}
-                    {b.criancas > 0 && ` · ${b.criancas} criança${b.criancas > 1 ? 's' : ''}`}
-                    {b.adolescentes > 0 && ` · ${b.adolescentes} adolescente${b.adolescentes > 1 ? 's' : ''}`}
-                    {b.idosos > 0 && ` · ${b.idosos} idoso${b.idosos > 1 ? 's' : ''}`}
-                  </p>
-                </div>
-              </div>
+            <div key={b.id} className="bg-white border-2 border-amber-200 rounded-xl overflow-hidden">
 
-              <p className="text-xs text-amber-600 font-medium">
-                Solicitado em {new Date(b.criadoEm).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-              </p>
+              {/* Comprovante de residência */}
+              {b.comprovanteUrl ? (
+                <button
+                  type="button"
+                  onClick={() => setImagemAberta(b.comprovanteUrl ?? null)}
+                  className="w-full relative group">
+                  <img
+                    src={b.comprovanteUrl}
+                    alt="Comprovante de residência"
+                    className="w-full h-36 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="bg-white/90 text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-full">
+                      🔍 Ver comprovante
+                    </span>
+                  </div>
+                </button>
+              ) : (
+                <div className="w-full h-14 bg-slate-100 flex items-center justify-center">
+                  <p className="text-xs text-slate-400">Sem comprovante enviado</p>
+                </div>
+              )}
 
-              <div className="flex gap-2">
-                <button
-                  onClick={() => rejeitar(b.id, b.nome)}
-                  disabled={processando === b.id}
-                  className="flex-1 py-2.5 rounded-xl text-red-600 font-semibold text-sm border-2 border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50">
-                  Rejeitar
-                </button>
-                <button
-                  onClick={() => aprovar(b.id)}
-                  disabled={processando === b.id}
-                  className="flex-1 py-2.5 rounded-xl text-white font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
-                  style={{ background: 'var(--roxo)' }}>
-                  {processando === b.id ? 'Processando…' : 'Aprovar'}
-                </button>
+              <div className="p-4 space-y-3">
+                {/* Dados */}
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0"
+                    style={{ background: 'var(--roxo-bg)', color: 'var(--roxo-med)' }}>
+                    {b.nome.split(' ').filter(Boolean).slice(0, 2).map(n => n[0]).join('').toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-800">{b.nome}</p>
+                    <p className="text-xs text-slate-500">{formatCPF(b.cpf)}</p>
+                    {b.telefone && <p className="text-xs text-slate-500">{b.telefone}</p>}
+                    {b.endereco && (
+                      <p className="text-xs text-slate-500 truncate">
+                        {b.endereco}{b.bairro ? ` · ${b.bairro}` : ''}
+                      </p>
+                    )}
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      {totalMoradores(b)} morador{totalMoradores(b) !== 1 ? 'es' : ''}
+                      {b.criancas > 0 && ` · ${b.criancas} criança${b.criancas > 1 ? 's' : ''}`}
+                      {b.adolescentes > 0 && ` · ${b.adolescentes} adolescente${b.adolescentes > 1 ? 's' : ''}`}
+                      {b.idosos > 0 && ` · ${b.idosos} idoso${b.idosos > 1 ? 's' : ''}`}
+                    </p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-amber-600 font-medium">
+                  Solicitado em {new Date(b.criadoEm).toLocaleString('pt-BR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit',
+                    timeZone: 'America/Sao_Paulo',
+                  })}
+                </p>
+
+                {/* Ações */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => rejeitar(b.id, b.nome)}
+                    disabled={processando === b.id}
+                    className="flex-1 py-2.5 rounded-xl text-red-600 font-semibold text-sm border-2 border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50">
+                    Rejeitar
+                  </button>
+                  <button
+                    onClick={() => aprovar(b.id)}
+                    disabled={processando === b.id}
+                    className="flex-1 py-2.5 rounded-xl text-white font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+                    style={{ background: 'var(--roxo)' }}>
+                    {processando === b.id ? 'Processando…' : 'Aprovar'}
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Modal de visualização do comprovante */}
+      {imagemAberta && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+          onClick={() => setImagemAberta(null)}>
+          <div className="relative max-w-lg w-full" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setImagemAberta(null)}
+              className="absolute -top-10 right-0 text-white text-2xl font-bold leading-none">
+              ✕
+            </button>
+            <img
+              src={imagemAberta}
+              alt="Comprovante de residência"
+              className="w-full rounded-xl max-h-[80vh] object-contain"
+            />
+            <a
+              href={imagemAberta}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 block text-center text-sm text-white/70 underline">
+              Abrir em nova aba
+            </a>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
