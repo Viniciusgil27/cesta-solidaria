@@ -70,6 +70,11 @@ export default async function HomePage() {
           Fazer cadastro
         </Link>
 
+        <Link href="/consulta"
+          className="block w-full py-3 rounded-xl text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors mb-2.5">
+          Consultar meu cadastro
+        </Link>
+
         <Link href="/admin/login"
           className="block w-full py-3 rounded-xl text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">
           Área administrativa

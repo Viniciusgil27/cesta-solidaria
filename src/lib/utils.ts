@@ -18,6 +18,12 @@ export function cleanCPF(cpf: string): string {
   return cpf.replace(/\D/g, '')
 }
 
+export function maskCPF(cpf: string): string {
+  const nums = cleanCPF(cpf)
+  if (nums.length !== 11) return cpf
+  return `${nums.slice(0, 3)}.***.***-${nums.slice(9, 11)}`
+}
+
 export function formatPhone(phone: string): string {
   const nums = phone.replace(/\D/g, '').slice(0, 11)
   if (nums.length > 10)
