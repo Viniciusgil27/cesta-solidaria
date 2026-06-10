@@ -47,13 +47,37 @@ NEXTAUTH_SECRET="seu-segredo-forte-aqui"
 
 # Em produção, troque pela URL da Vercel
 NEXTAUTH_URL="http://localhost:3000"
+
+# Supabase → Settings → Data API → Project URL
+SUPABASE_URL="https://[REF].supabase.co"
+
+# Supabase → Settings → API → Project API keys → service_role (secret)
+# Usada apenas no servidor para enviar o comprovante de residência ao Storage.
+SUPABASE_SERVICE_KEY="sua-service-role-key-aqui"
 ```
+
+Um modelo está disponível em `.env.example`.
 
 ### 4. Criar as tabelas
 
 ```bash
 npm run db:generate   # gera o Prisma Client
 npm run db:push       # cria as tabelas no Supabase
+```
+
+### 4.1 Criar o bucket de comprovantes (Supabase Storage)
+
+O cadastro público exige o envio de um comprovante de residência, salvo no bucket `comprovantes`.
+
+**Pelo painel:**
+1. Supabase → **Storage** → **New bucket**
+2. Nome: `comprovantes`
+3. Marque **Public bucket** (a URL gerada é pública: `/storage/v1/object/public/comprovantes/...`)
+
+**Ou via SQL Editor:**
+```sql
+insert into storage.buckets (id, name, public)
+values ('comprovantes', 'comprovantes', true);
 ```
 
 ### 5. Criar o primeiro admin
@@ -83,7 +107,9 @@ npm i -g vercel
 vercel
 ```
 
-Adicione as variáveis de ambiente no painel da Vercel (`DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL` com a URL de produção).
+Adicione as variáveis de ambiente no painel da Vercel: `DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL` (com a URL de produção), `SUPABASE_URL` e `SUPABASE_SERVICE_KEY`.
+
+Sem `SUPABASE_URL`/`SUPABASE_SERVICE_KEY`, o upload do comprovante de residência falha e o cadastro público para de funcionar.
 
 ---
 
