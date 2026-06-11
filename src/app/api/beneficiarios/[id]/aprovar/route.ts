@@ -13,7 +13,13 @@ export async function PUT(_req: NextRequest, { params }: { params: { id: string 
 
   const atualizado = await prisma.beneficiario.update({
     where: { id: params.id },
-    data: { statusCadastro: 'APROVADO', ativo: true },
+    data: {
+      statusCadastro: 'APROVADO',
+      ativo: true,
+      aprovadoEm: new Date(),
+      motivoRejeicao: null,
+      rejeitadoEm: null,
+    },
   })
 
   return NextResponse.json(atualizado)

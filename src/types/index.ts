@@ -25,6 +25,9 @@ export interface Beneficiario {
   ativo: boolean
   statusCadastro: StatusCadastro
   comprovanteUrl?: string
+  motivoRejeicao?: string
+  aprovadoEm?: string
+  rejeitadoEm?: string
   criadoEm: string
   jaRetirou?: boolean
 }

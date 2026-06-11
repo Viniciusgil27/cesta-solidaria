@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { formatCPF, formatPhone, totalMoradores } from '@/lib/utils'
+import { formatCPF, formatPhone, formatDateTime, totalMoradores } from '@/lib/utils'
 import type { Beneficiario } from '@/types'
 
 const FAIXAS = [
@@ -89,6 +89,39 @@ export default function VerFamiliaPage() {
               {total} morador{total !== 1 ? 'es' : ''} na casa
             </p>
           </div>
+        </div>
+
+        {/* Status do cadastro */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Status do cadastro</p>
+            <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
+              b.statusCadastro === 'APROVADO' ? 'bg-green-100 text-green-700' :
+              b.statusCadastro === 'REJEITADO' ? 'bg-red-100 text-red-700' :
+              'bg-amber-100 text-amber-700'
+            }`}>
+              {b.statusCadastro === 'APROVADO' ? 'Aprovado' : b.statusCadastro === 'REJEITADO' ? 'Rejeitado' : 'Pendente'}
+            </span>
+          </div>
+          {b.statusCadastro === 'APROVADO' && b.aprovadoEm && (
+            <p className="text-sm text-slate-500">Aprovado em {formatDateTime(b.aprovadoEm)}</p>
+          )}
+          {b.statusCadastro === 'PENDENTE' && (
+            <p className="text-sm text-slate-500">Aguardando análise da equipe.</p>
+          )}
+          {b.statusCadastro === 'REJEITADO' && (
+            <>
+              {b.rejeitadoEm && (
+                <p className="text-sm text-slate-500">Rejeitado em {formatDateTime(b.rejeitadoEm)}</p>
+              )}
+              {b.motivoRejeicao && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-3 mt-1">
+                  <p className="text-xs font-semibold text-red-700 mb-0.5">Motivo</p>
+                  <p className="text-sm text-red-700">{b.motivoRejeicao}</p>
+                </div>
+              )}
+            </>
+          )}
         </div>
 
         {/* Contato e endereço */}

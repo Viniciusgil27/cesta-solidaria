@@ -10,6 +10,8 @@ export default function PendentesPage() {
   const [carregando, setCarregando] = useState(true)
   const [processando, setProcessando] = useState<string | null>(null)
   const [imagemAberta, setImagemAberta] = useState<string | null>(null)
+  const [rejeitando, setRejeitando] = useState<{ id: string; nome: string } | null>(null)
+  const [motivo, setMotivo] = useState('')
 
   const carregar = useCallback(async () => {
     setCarregando(true)
@@ -27,11 +29,17 @@ export default function PendentesPage() {
     carregar()
   }
 
-  async function rejeitar(id: string, nome: string) {
-    if (!confirm(`Rejeitar o cadastro de ${nome}? Esta ação pode ser revertida editando o beneficiário.`)) return
-    setProcessando(id)
-    await fetch(`/api/beneficiarios/${id}/rejeitar`, { method: 'PUT' })
+  async function confirmarRejeicao() {
+    if (!rejeitando || !motivo.trim()) return
+    setProcessando(rejeitando.id)
+    await fetch(`/api/beneficiarios/${rejeitando.id}/rejeitar`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ motivo: motivo.trim() }),
+    })
     setProcessando(null)
+    setRejeitando(null)
+    setMotivo('')
     carregar()
   }
 
@@ -126,7 +134,7 @@ export default function PendentesPage() {
                 {/* Ações */}
                 <div className="flex gap-2">
                   <button
-                    onClick={() => rejeitar(b.id, b.nome)}
+                    onClick={() => { setRejeitando({ id: b.id, nome: b.nome }); setMotivo('') }}
                     disabled={processando === b.id}
                     className="flex-1 py-2.5 rounded-xl text-red-600 font-semibold text-sm border-2 border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50">
                     Rejeitar
@@ -168,6 +176,41 @@ export default function PendentesPage() {
               className="mt-3 block text-center text-sm text-white/70 underline">
               Abrir em nova aba
             </a>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de motivo da rejeição */}
+      {rejeitando && (
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setRejeitando(null)}>
+          <div className="bg-white rounded-2xl p-5 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+            <p className="font-bold text-slate-800 mb-1">Rejeitar cadastro</p>
+            <p className="text-sm text-slate-500 mb-4">
+              Informe o motivo da rejeição de <strong>{rejeitando.nome}</strong>. Esse motivo será exibido para a pessoa na consulta de cadastro.
+            </p>
+            <textarea
+              value={motivo}
+              onChange={e => setMotivo(e.target.value)}
+              rows={3}
+              autoFocus
+              placeholder="Ex: Comprovante de residência ilegível."
+              className="w-full border-2 border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-red-300 transition-colors resize-none"
+            />
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => setRejeitando(null)}
+                className="flex-1 py-2.5 rounded-xl text-slate-600 font-semibold text-sm border-2 border-slate-200 hover:bg-slate-50 transition-colors">
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarRejeicao}
+                disabled={!motivo.trim() || processando === rejeitando.id}
+                className="flex-1 py-2.5 rounded-xl text-white font-semibold text-sm bg-red-600 hover:opacity-90 transition-opacity disabled:opacity-50">
+                {processando === rejeitando.id ? 'Enviando…' : 'Confirmar rejeição'}
+              </button>
+            </div>
           </div>
         </div>
       )}

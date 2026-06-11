@@ -40,6 +40,9 @@ model Beneficiario {
   ativo           Boolean         @default(true)
   statusCadastro  StatusCadastro  @default(APROVADO)
   comprovanteUrl  String?
+  motivoRejeicao  String?
+  aprovadoEm      DateTime?
+  rejeitadoEm     DateTime?
   criadoEm        DateTime        @default(now())
   atualizadoEm    DateTime        @updatedAt
 
