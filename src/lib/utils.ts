@@ -24,6 +24,20 @@ export function maskCPF(cpf: string): string {
   return `${nums.slice(0, 3)}.***.***-${nums.slice(9, 11)}`
 }
 
+export function cpfValido(cpf: string): boolean {
+  const nums = cleanCPF(cpf)
+  if (nums.length !== 11 || /^(\d)\1{10}$/.test(nums)) return false
+
+  const digito = (base: string) => {
+    let soma = 0
+    for (let i = 0; i < base.length; i++) soma += parseInt(base[i]) * (base.length + 1 - i)
+    const resto = (soma * 10) % 11
+    return resto === 10 ? 0 : resto
+  }
+
+  return digito(nums.slice(0, 9)) === parseInt(nums[9]) && digito(nums.slice(0, 10)) === parseInt(nums[10])
+}
+
 export function formatPhone(phone: string): string {
   const nums = phone.replace(/\D/g, '').slice(0, 11)
   if (nums.length > 10)

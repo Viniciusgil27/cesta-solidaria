@@ -10,18 +10,19 @@ import { NovaEntregaButton } from '@/components/admin/NovaEntregaButton'
 export const revalidate = 0
 
 async function getDados() {
-  const [entregaAtiva, totalBeneficiarios, totalPendentesCadastro, historico] = await Promise.all([
+  const [entregaAtiva, totalBeneficiarios, totalPendentesCadastro, totalVoluntarios, historico] = await Promise.all([
     prisma.entrega.findFirst({ where: { status: 'ATIVA' }, include: { _count: { select: { retiradas: true } } } }),
     prisma.beneficiario.count({ where: { ativo: true, statusCadastro: 'APROVADO' } }),
     prisma.beneficiario.count({ where: { statusCadastro: 'PENDENTE' } }),
+    prisma.voluntario.count({ where: { status: 'ATIVO' } }),
     prisma.entrega.findMany({ where: { status: 'ENCERRADA' }, orderBy: { criadoEm: 'desc' }, take: 3, include: { _count: { select: { retiradas: true } } } }),
   ])
-  return { entregaAtiva, totalBeneficiarios, totalPendentesCadastro, historico }
+  return { entregaAtiva, totalBeneficiarios, totalPendentesCadastro, totalVoluntarios, historico }
 }
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions)
-  const { entregaAtiva, totalBeneficiarios, totalPendentesCadastro, historico } = await getDados()
+  const { entregaAtiva, totalBeneficiarios, totalPendentesCadastro, totalVoluntarios, historico } = await getDados()
 
   const totalRetiraram = entregaAtiva?._count.retiradas ?? 0
   const totalPendentes = totalBeneficiarios - totalRetiraram
@@ -119,6 +120,17 @@ export default async function AdminPage() {
             ))}
           </div>
         </div>
+
+        {/* Voluntários */}
+        <Link href="/admin/voluntarios"
+          className="flex items-center gap-3 w-full rounded-xl p-4 bg-white border border-slate-200 hover:bg-purple-50 hover:border-purple-200 transition-colors">
+          <span className="text-2xl">🙋</span>
+          <div className="flex-1 text-left">
+            <p className="text-sm font-semibold text-slate-700">Voluntários</p>
+            <p className="text-xs text-slate-400">{totalVoluntarios} ativo{totalVoluntarios !== 1 ? 's' : ''}</p>
+          </div>
+          <span className="text-slate-300 text-lg">›</span>
+        </Link>
 
         {/* Histórico e Admins */}
         <div className="grid grid-cols-2 gap-2.5">

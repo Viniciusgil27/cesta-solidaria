@@ -77,6 +77,19 @@ model Retirada {
   @@map("retiradas")
 }
 
+model Voluntario {
+  id           String           @id @default(cuid())
+  nome         String
+  cpf          String           @unique
+  telefone     String
+  status       StatusVoluntario @default(ATIVO)
+  observacoes  String?
+  criadoEm     DateTime         @default(now())
+  atualizadoEm DateTime         @updatedAt
+
+  @@map("voluntarios")
+}
+
 enum EntregaStatus {
   ATIVA
   ENCERRADA
@@ -86,4 +99,9 @@ enum StatusCadastro {
   PENDENTE
   APROVADO
   REJEITADO
+}
+
+enum StatusVoluntario {
+  ATIVO
+  INATIVO
 }
