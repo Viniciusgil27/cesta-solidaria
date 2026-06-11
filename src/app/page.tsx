@@ -148,6 +148,21 @@ export default async function HomePage() {
           </p>
         </div>
 
+        {/* Quero ser voluntário */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+          <h2 className="font-bold text-slate-800">Quer ajudar como voluntário?</h2>
+          <p className="text-sm text-slate-500 mt-0.5 mb-4 leading-relaxed">
+            Cadastre-se e a equipe entra em contato pelo WhatsApp.
+          </p>
+          <Link
+            href="/voluntarios"
+            className="block w-full py-3 rounded-xl text-sm font-semibold text-center border-2 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            style={{ borderColor: 'var(--roxo-claro)', color: 'var(--roxo)' }}
+          >
+            Quero ser voluntário
+          </Link>
+        </div>
+
         {/* Rodapé */}
         <div className="text-center pt-2">
           <p className="text-xs text-slate-400 leading-relaxed mb-3">

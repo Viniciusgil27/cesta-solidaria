@@ -50,3 +50,15 @@ export interface ResumoEntrega {
   totalNaoRetiraram: number
   percentualAtendidos: number
 }
+
+export type StatusVoluntario = 'ATIVO' | 'INATIVO'
+
+export interface Voluntario {
+  id: string
+  nome: string
+  cpf: string
+  telefone: string
+  status: StatusVoluntario
+  observacoes?: string
+  criadoEm: string
+}
