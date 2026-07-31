@@ -17,7 +17,8 @@ export function Header() {
     <header className="sticky top-0 z-30 bg-[var(--tpl-primary)] text-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2 font-tpl-serif font-bold text-lg flex-shrink-0">
-          <span className="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center text-base" aria-hidden="true">🧺</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icons/icon_transparente.png" alt="" aria-hidden="true" className="w-9 h-9 object-contain" />
           <span className="hidden xs:inline">Cesta Solidária</span>
         </Link>
 

@@ -30,7 +30,8 @@ export function AdminShell({ title, backHref, headerAction, children }: AdminShe
     <div className="min-h-[100dvh] flex flex-col sm:flex-row">
       <aside className="hidden sm:flex sm:flex-col w-60 flex-shrink-0 bg-[var(--tpl-primary)] text-white p-5">
         <Link href="/admin" className="font-tpl-serif font-bold text-lg mb-8 flex items-center gap-2">
-          <span aria-hidden="true">🧺</span> Cesta Solidária
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icons/icon_transparente.png" alt="" aria-hidden="true" className="w-7 h-7 object-contain" /> Cesta Solidária
         </Link>
         <nav className="space-y-1 flex-1">
           {NAV.map((item) => (
