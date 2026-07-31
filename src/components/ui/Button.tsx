@@ -9,7 +9,7 @@ const base =
 
 const variantClasses: Record<Variant, string> = {
   primary: 'bg-[var(--tpl-primary)] text-white hover:bg-[var(--tpl-primary-hover)]',
-  secondary: 'bg-transparent border-2 border-[var(--tpl-primary)] text-[var(--tpl-primary)] hover:bg-[var(--tpl-primary-soft)]',
+  secondary: 'bg-[var(--tpl-surface-muted)] text-[var(--tpl-primary)] hover:brightness-95',
   ghost: 'bg-transparent text-[var(--tpl-text-secondary)] hover:bg-[var(--tpl-surface-muted)]',
   danger: 'bg-[var(--tpl-danger)] text-white hover:opacity-90',
   outlineDanger: 'bg-transparent border-2 border-[var(--tpl-danger)] text-[var(--tpl-danger)] hover:bg-[var(--tpl-danger-soft)]',
