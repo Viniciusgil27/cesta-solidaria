@@ -3,6 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { formatCPF, formatDateTime } from '@/lib/utils'
+import { Header } from '@/components/ui/Header'
+import { Footer } from '@/components/ui/Footer'
+import { FormField, tplInputClass } from '@/components/ui/FormField'
+import { Button, ButtonLink } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { LoadingState } from '@/components/ui/LoadingState'
 
 type Resultado =
   | { status: 'nao_encontrado' }
@@ -38,86 +44,76 @@ export default function ConsultaPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 pb-10">
-      <header className="px-5 py-4 flex items-center gap-3" style={{ background: 'var(--roxo)' }}>
-        <Link href="/" className="text-white text-xl leading-none">‹</Link>
-        <span className="text-white text-sm font-semibold">Consultar cadastro</span>
-      </header>
+    <main className="min-h-[100dvh] flex flex-col">
+      <Header />
 
-      <div className="p-5 max-w-md mx-auto">
-        <p className="text-sm text-slate-500 mb-5 leading-relaxed">
+      <div className="flex-1 px-5 py-6 max-w-md mx-auto w-full">
+        <Link href="/" className="text-sm text-[var(--tpl-primary)] font-semibold hover:underline">‹ Início</Link>
+        <h1 className="font-tpl-serif font-bold text-2xl text-[var(--tpl-text-primary)] mt-2 mb-1">Consultar cadastro</h1>
+        <p className="text-sm text-[var(--tpl-text-secondary)] mb-6 leading-relaxed">
           Digite o CPF utilizado no cadastro para ver a situação atual.
         </p>
 
         <form onSubmit={consultar} className="space-y-3">
-          <div>
-            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-1">CPF</label>
-            <input
-              className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
-              placeholder="000.000.000-00" inputMode="numeric" maxLength={14}
+          <FormField label="CPF" htmlFor="cpf-consulta">
+            <input id="cpf-consulta" className={tplInputClass} placeholder="000.000.000-00" inputMode="numeric" maxLength={14}
               value={cpf} onChange={e => setCpf(formatCPF(e.target.value))} />
-          </div>
+          </FormField>
 
-          {erro && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">{erro}</div>
-          )}
+          {erro && <div className="bg-[var(--tpl-danger-soft)] border border-red-200 rounded-xl p-3 text-sm text-[var(--tpl-danger)] font-medium">{erro}</div>}
 
-          <button type="submit" disabled={loading}
-            className="w-full py-3.5 rounded-xl text-white font-semibold text-sm disabled:opacity-60 transition-opacity"
-            style={{ background: 'var(--roxo)' }}>
+          <Button type="submit" fullWidth size="lg" disabled={loading}>
             {loading ? 'Consultando…' : 'Consultar'}
-          </button>
+          </Button>
         </form>
 
-        {resultado && (
+        {loading && <LoadingState label="Consultando cadastro…" />}
+
+        {!loading && resultado && (
           <div className="mt-5">
             {resultado.status === 'nao_encontrado' && (
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 text-center">
-                <p className="text-3xl mb-2">🔍</p>
-                <p className="font-semibold text-slate-800 mb-1">Cadastro não encontrado</p>
-                <p className="text-sm text-slate-500 mb-4">Não encontramos nenhum cadastro para este CPF.</p>
-                <Link href="/cadastro"
-                  className="inline-block w-full py-3 rounded-xl text-white font-semibold text-sm"
-                  style={{ background: 'var(--roxo)' }}>
-                  Fazer cadastro
-                </Link>
-              </div>
+              <Card className="p-5 text-center">
+                <p className="text-3xl mb-2" aria-hidden="true">🔍</p>
+                <p className="font-tpl-serif font-bold text-lg text-[var(--tpl-text-primary)] mb-1">Cadastro não encontrado</p>
+                <p className="text-sm text-[var(--tpl-text-secondary)] mb-4">Não encontramos nenhum cadastro para este CPF.</p>
+                <ButtonLink href="/cadastro" fullWidth>Fazer cadastro</ButtonLink>
+              </Card>
             )}
 
             {resultado.status === 'pendente' && (
-              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-center">
-                <p className="text-3xl mb-2">⏳</p>
-                <p className="font-semibold text-amber-800 mb-1">Cadastro em análise</p>
-                <p className="text-sm text-amber-700 leading-relaxed">
+              <div className="rounded-2xl p-5 text-center bg-[var(--tpl-warning-soft)] border border-amber-200">
+                <p className="text-3xl mb-2" aria-hidden="true">⏳</p>
+                <p className="font-tpl-serif font-bold text-lg text-[var(--tpl-warning)] mb-1">Cadastro em análise</p>
+                <p className="text-sm text-[var(--tpl-text-secondary)] leading-relaxed">
                   Seu cadastro foi recebido e está em análise pela equipe responsável.
                 </p>
               </div>
             )}
 
             {resultado.status === 'aprovado' && (
-              <div className="bg-green-50 border border-green-200 rounded-2xl p-5 text-center">
-                <p className="text-3xl mb-2">✅</p>
-                <p className="font-semibold text-green-800 mb-1">Cadastro aprovado</p>
-                <p className="text-sm text-green-700 mb-3">Seu cadastro foi aprovado.</p>
+              <div className="rounded-2xl p-5 text-center bg-[var(--tpl-success-soft)] border border-emerald-200">
+                <p className="text-3xl mb-2" aria-hidden="true">✅</p>
+                <p className="font-tpl-serif font-bold text-lg text-[var(--tpl-success)] mb-1">Cadastro aprovado</p>
+                <p className="text-sm text-[var(--tpl-text-secondary)] mb-3">Seu cadastro foi aprovado.</p>
                 <div className="bg-white rounded-xl p-3.5 text-left text-sm space-y-1.5">
-                  <p><span className="text-slate-400">Nome: </span><span className="font-semibold text-slate-700">{resultado.nome}</span></p>
-                  <p><span className="text-slate-400">CPF: </span><span className="font-semibold text-slate-700">{resultado.cpfMascarado}</span></p>
+                  <p><span className="text-[var(--tpl-text-muted)]">Nome: </span><span className="font-semibold text-[var(--tpl-text-primary)]">{resultado.nome}</span></p>
+                  <p><span className="text-[var(--tpl-text-muted)]">CPF: </span><span className="font-semibold text-[var(--tpl-text-primary)]">{resultado.cpfMascarado}</span></p>
                   {resultado.aprovadoEm && (
-                    <p><span className="text-slate-400">Aprovado em: </span><span className="font-semibold text-slate-700">{formatDateTime(resultado.aprovadoEm)}</span></p>
+                    <p><span className="text-[var(--tpl-text-muted)]">Aprovado em: </span><span className="font-semibold text-[var(--tpl-text-primary)]">{formatDateTime(resultado.aprovadoEm)}</span></p>
                   )}
                 </div>
               </div>
             )}
 
             {resultado.status === 'rejeitado' && (
-              <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-center">
-                <p className="text-3xl mb-2">❌</p>
-                <p className="font-semibold text-red-800 mb-1">Cadastro não aprovado</p>
-                <p className="text-sm text-red-700 mb-3">Seu cadastro não foi aprovado.</p>
+              <div className="rounded-2xl p-5 text-center bg-[var(--tpl-danger-soft)] border border-red-200">
+                <p className="text-3xl mb-2" aria-hidden="true">❌</p>
+                <p className="font-tpl-serif font-bold text-lg text-[var(--tpl-danger)] mb-1">Cadastro não aprovado</p>
+                <p className="text-sm text-[var(--tpl-text-secondary)] mb-3">Seu cadastro não foi aprovado.</p>
                 {resultado.motivoRejeicao && (
                   <div className="bg-white rounded-xl p-3.5 text-left">
-                    <p className="text-xs font-semibold text-slate-400 mb-1">Motivo</p>
-                    <p className="text-sm text-slate-700">{resultado.motivoRejeicao}</p>
+                    <p className="text-xs font-semibold text-[var(--tpl-text-muted)] mb-1">Motivo</p>
+                    <p className="text-sm text-[var(--tpl-text-primary)]">{resultado.motivoRejeicao}</p>
                   </div>
                 )}
               </div>
@@ -125,6 +121,8 @@ export default function ConsultaPage() {
           </div>
         )}
       </div>
+
+      <Footer />
     </main>
   )
 }

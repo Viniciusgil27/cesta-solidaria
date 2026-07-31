@@ -1,8 +1,9 @@
 'use client'
 // src/app/admin/(protected)/exportar/page.tsx
 import { useState } from 'react'
-import Link from 'next/link'
 import { formatDate, totalMoradores, formatCPF } from '@/lib/utils'
+import { AdminShell } from '@/components/ui/AdminShell'
+import { Card } from '@/components/ui/Card'
 
 type OpcaoExport = {
   id: string
@@ -128,39 +129,35 @@ export default function ExportarPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <header className="px-5 py-4 flex items-center gap-3" style={{ background: 'var(--roxo)' }}>
-        <Link href="/admin" className="text-white text-xl leading-none">‹</Link>
-        <p className="text-white text-sm font-semibold">Exportar dados</p>
-      </header>
-
-      <div className="p-5 max-w-lg mx-auto space-y-3">
-
+    <AdminShell title="Exportar dados" backHref="/admin">
+      <div className="space-y-3">
         {aviso && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-sm text-amber-700">
+          <div className="bg-[var(--tpl-warning-soft)] border border-amber-200 rounded-xl p-3.5 text-sm text-[var(--tpl-warning)]">
             ⚠️ {aviso}
           </div>
         )}
 
         {OPCOES.map(op => (
           <button key={op.id} onClick={() => exportar(op.id)} disabled={carregando === op.id}
-            className="w-full bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-4 text-left hover:bg-slate-50 disabled:opacity-60 transition-colors">
-            <span className="text-2xl flex-shrink-0">{op.icon}</span>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm text-slate-800">{op.titulo}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{op.desc}</p>
-              {op.requerEntregaAtiva && (
-                <p className="text-xs mt-1 font-medium" style={{ color: 'var(--roxo-med)' }}>
-                  Requer entrega ativa
-                </p>
-              )}
-            </div>
-            <span className="text-slate-400 flex-shrink-0 text-lg">
-              {carregando === op.id ? '…' : '↓'}
-            </span>
+            className="w-full text-left disabled:opacity-60">
+            <Card className="p-4 flex items-center gap-4 hover:bg-[var(--tpl-primary-soft)] transition-colors">
+              <span className="text-2xl flex-shrink-0" aria-hidden="true">{op.icon}</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm text-[var(--tpl-text-primary)]">{op.titulo}</p>
+                <p className="text-xs text-[var(--tpl-text-muted)] mt-0.5">{op.desc}</p>
+                {op.requerEntregaAtiva && (
+                  <p className="text-xs mt-1 font-medium text-[var(--tpl-primary)]">
+                    Requer entrega ativa
+                  </p>
+                )}
+              </div>
+              <span className="text-[var(--tpl-text-muted)] flex-shrink-0 text-lg">
+                {carregando === op.id ? '…' : '↓'}
+              </span>
+            </Card>
           </button>
         ))}
       </div>
-    </main>
+    </AdminShell>
   )
 }

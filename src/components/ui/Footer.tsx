@@ -13,22 +13,22 @@ export function Footer() {
         <div>
           <p className="tpl-eyebrow mb-3">Navegação</p>
           <ul className="space-y-2 text-[var(--tpl-text-secondary)]">
-            <li><Link href="/template-visual" className="hover:text-[var(--tpl-primary)] hover:underline">Início</Link></li>
-            <li><Link href="/template-visual/cadastro" className="hover:text-[var(--tpl-primary)] hover:underline">Fazer cadastro</Link></li>
-            <li><Link href="/template-visual/consulta" className="hover:text-[var(--tpl-primary)] hover:underline">Consultar cadastro</Link></li>
-            <li><Link href="/template-visual/voluntarios" className="hover:text-[var(--tpl-primary)] hover:underline">Ser voluntário</Link></li>
+            <li><Link href="/" className="hover:text-[var(--tpl-primary)] hover:underline">Início</Link></li>
+            <li><Link href="/cadastro" className="hover:text-[var(--tpl-primary)] hover:underline">Fazer cadastro</Link></li>
+            <li><Link href="/consulta" className="hover:text-[var(--tpl-primary)] hover:underline">Consultar cadastro</Link></li>
+            <li><Link href="/voluntarios" className="hover:text-[var(--tpl-primary)] hover:underline">Ser voluntário</Link></li>
           </ul>
         </div>
         <div>
           <p className="tpl-eyebrow mb-3">Acesso à equipe</p>
           <ul className="space-y-2 text-[var(--tpl-text-secondary)]">
-            <li><Link href="/template-visual/admin/login" className="hover:text-[var(--tpl-primary)] hover:underline">Área administrativa</Link></li>
+            <li><Link href="/admin/login" className="hover:text-[var(--tpl-primary)] hover:underline">Área administrativa</Link></li>
           </ul>
           <p className="text-xs text-[var(--tpl-text-muted)] mt-4">Ação voluntária, sem fins lucrativos.</p>
         </div>
       </div>
       <div className="border-t border-[var(--tpl-border)] px-4 sm:px-6 py-4 text-center text-xs text-[var(--tpl-text-muted)]">
-        Protótipo visual — Comunidade Batista Alternativa de Vida
+        Comunidade Batista Alternativa de Vida
       </div>
     </footer>
   )

@@ -2,9 +2,15 @@
 // src/app/admin/(protected)/voluntarios/[id]/page.tsx
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { formatCPF, formatPhone, formatDateTime } from '@/lib/utils'
+import { formatCPF, formatPhone, formatDateTime, iniciais } from '@/lib/utils'
 import type { Voluntario } from '@/types'
+import { AdminShell } from '@/components/ui/AdminShell'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { FormField, tplInputClass } from '@/components/ui/FormField'
+import { LoadingState } from '@/components/ui/LoadingState'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export default function VerVoluntarioPage() {
   const { id } = useParams<{ id: string }>()
@@ -73,146 +79,97 @@ export default function VerVoluntarioPage() {
 
   if (carregando) {
     return (
-      <main className="min-h-screen bg-slate-50">
-        <header className="px-5 py-4 flex items-center gap-3" style={{ background: 'var(--roxo)' }}>
-          <Link href="/admin/voluntarios" className="text-white text-xl leading-none">‹</Link>
-          <p className="text-white text-sm font-semibold">Voluntário</p>
-        </header>
-        <div className="flex items-center justify-center pt-20 text-slate-400 text-sm">Carregando…</div>
-      </main>
+      <AdminShell title="Voluntário" backHref="/admin/voluntarios">
+        <LoadingState />
+      </AdminShell>
     )
   }
 
   if (!v) {
     return (
-      <main className="min-h-screen bg-slate-50">
-        <header className="px-5 py-4 flex items-center gap-3" style={{ background: 'var(--roxo)' }}>
-          <Link href="/admin/voluntarios" className="text-white text-xl leading-none">‹</Link>
-          <p className="text-white text-sm font-semibold">Voluntário</p>
-        </header>
-        <div className="text-center pt-20 text-slate-400">
-          <p className="text-3xl mb-2">🔍</p>
-          <p className="text-sm">Voluntário não encontrado.</p>
-        </div>
-      </main>
+      <AdminShell title="Voluntário" backHref="/admin/voluntarios">
+        <EmptyState icon="🔍" title="Voluntário não encontrado" />
+      </AdminShell>
     )
   }
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <header className="px-5 py-4 flex items-center gap-3" style={{ background: 'var(--roxo)' }}>
-        <Link href="/admin/voluntarios" className="text-white text-xl leading-none">‹</Link>
-        <p className="text-white text-sm font-semibold flex-1 truncate">{v.nome}</p>
-        {!editando && (
-          <button onClick={abrirEdicao}
-            className="text-xs px-3 py-1.5 rounded-lg font-medium"
-            style={{ background: 'rgba(255,255,255,0.15)', color: 'white' }}>
-            Editar
-          </button>
-        )}
-      </header>
-
-      <div className="p-5 max-w-lg mx-auto space-y-4">
-
+    <AdminShell title={v.nome} backHref="/admin/voluntarios"
+      headerAction={!editando && (
+        <Button size="md" className="!py-1.5 !px-3 !text-xs" onClick={abrirEdicao}>Editar</Button>
+      )}>
+      <div className="space-y-4">
         {editando ? (
-          <form onSubmit={salvar} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
-            {erro && <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">{erro}</div>}
+          <Card className="p-5">
+            <form onSubmit={salvar} className="space-y-3">
+              {erro && <div className="bg-[var(--tpl-danger-soft)] border border-red-200 rounded-xl p-3 text-sm text-[var(--tpl-danger)] font-medium">{erro}</div>}
 
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wide text-slate-500 block mb-1.5">Nome completo</label>
-              <input className="w-full border-2 border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-400"
-                value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} required />
-            </div>
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wide text-slate-500 block mb-1.5">CPF</label>
-              <input className="w-full border-2 border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-400"
-                placeholder="000.000.000-00" inputMode="numeric" maxLength={14}
-                value={form.cpf} onChange={e => setForm(f => ({ ...f, cpf: formatCPF(e.target.value) }))} required />
-            </div>
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wide text-slate-500 block mb-1.5">Telefone</label>
-              <input className="w-full border-2 border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-400"
-                placeholder="(19) 9 0000-0000" type="tel"
-                value={form.telefone} onChange={e => setForm(f => ({ ...f, telefone: formatPhone(e.target.value) }))} />
-            </div>
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wide text-slate-500 block mb-1.5">Observações</label>
-              <textarea className="w-full border-2 border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-purple-400 resize-none"
-                rows={3} placeholder="Disponibilidade, função, observações da equipe…"
-                value={form.observacoes} onChange={e => setForm(f => ({ ...f, observacoes: e.target.value }))} />
-            </div>
+              <FormField label="Nome completo" htmlFor="v-nome" required>
+                <input id="v-nome" className={tplInputClass} value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} required />
+              </FormField>
+              <FormField label="CPF" htmlFor="v-cpf" required>
+                <input id="v-cpf" className={tplInputClass} placeholder="000.000.000-00" inputMode="numeric" maxLength={14}
+                  value={form.cpf} onChange={e => setForm(f => ({ ...f, cpf: formatCPF(e.target.value) }))} required />
+              </FormField>
+              <FormField label="Telefone" htmlFor="v-telefone">
+                <input id="v-telefone" className={tplInputClass} placeholder="(19) 9 0000-0000" type="tel"
+                  value={form.telefone} onChange={e => setForm(f => ({ ...f, telefone: formatPhone(e.target.value) }))} />
+              </FormField>
+              <FormField label="Observações" htmlFor="v-obs">
+                <textarea id="v-obs" className={tplInputClass + ' resize-none'} rows={3}
+                  placeholder="Disponibilidade, função, observações da equipe…"
+                  value={form.observacoes} onChange={e => setForm(f => ({ ...f, observacoes: e.target.value }))} />
+              </FormField>
 
-            <div className="flex gap-3 pt-1">
-              <button type="button" onClick={() => { setEditando(false); setErro('') }}
-                className="flex-1 py-3 rounded-xl text-slate-600 font-semibold text-sm border border-slate-200">
-                Cancelar
-              </button>
-              <button type="submit" disabled={salvando}
-                className="flex-1 py-3 rounded-xl text-white font-semibold text-sm disabled:opacity-60"
-                style={{ background: 'var(--roxo)' }}>
-                {salvando ? 'Salvando…' : 'Salvar'}
-              </button>
-            </div>
-          </form>
+              <div className="flex gap-3 pt-1">
+                <Button type="button" variant="ghost" fullWidth onClick={() => { setEditando(false); setErro('') }}>Cancelar</Button>
+                <Button type="submit" fullWidth disabled={salvando}>{salvando ? 'Salvando…' : 'Salvar'}</Button>
+              </div>
+            </form>
+          </Card>
         ) : (
           <>
-            {/* Avatar + nome */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-lg flex-shrink-0"
-                style={{ background: 'var(--roxo-bg)', color: 'var(--roxo-med)' }}>
-                {v.nome.split(' ').filter(Boolean).slice(0, 2).map(n => n[0]).join('').toUpperCase()}
+            <Card className="p-5 flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-lg flex-shrink-0 bg-[var(--tpl-primary-soft)] text-[var(--tpl-primary)]">
+                {iniciais(v.nome)}
               </div>
               <div className="min-w-0">
-                <p className="font-bold text-slate-800 truncate">{v.nome}</p>
-                <p className="text-sm text-slate-500 mt-0.5">{formatCPF(v.cpf)}</p>
-                <p className="text-xs text-slate-400 mt-1">Cadastrado em {formatDateTime(v.criadoEm)}</p>
+                <p className="font-tpl-serif font-bold text-lg text-[var(--tpl-text-primary)] truncate">{v.nome}</p>
+                <p className="text-sm text-[var(--tpl-text-secondary)] mt-0.5">{formatCPF(v.cpf)}</p>
+                <p className="text-xs text-[var(--tpl-text-muted)] mt-1">Cadastrado em {formatDateTime(v.criadoEm)}</p>
               </div>
-            </div>
+            </Card>
 
-            {/* Status */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between gap-3">
+            <Card className="p-5 flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Status</p>
-                <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
-                  v.status === 'ATIVO' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
-                }`}>
-                  {v.status === 'ATIVO' ? 'Ativo' : 'Inativo'}
-                </span>
+                <p className="tpl-eyebrow mb-1">Status</p>
+                <Badge tone={v.status === 'ATIVO' ? 'success' : 'neutral'}>{v.status === 'ATIVO' ? 'Ativo' : 'Inativo'}</Badge>
               </div>
-              <button onClick={alternarStatus} disabled={alterandoStatus}
-                className="text-xs px-3 py-2 rounded-lg font-semibold border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-60">
+              <Button variant="ghost" size="md" disabled={alterandoStatus} onClick={alternarStatus} className="border border-[var(--tpl-border)] !py-2">
                 {alterandoStatus ? 'Salvando…' : v.status === 'ATIVO' ? 'Marcar como inativo' : 'Marcar como ativo'}
-              </button>
-            </div>
+              </Button>
+            </Card>
 
-            {/* Contato */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Contato</p>
-              <div className="flex items-center gap-3">
-                <span className="text-slate-400 text-base w-5 text-center">📱</span>
-                <p className="text-sm text-slate-700">{formatPhone(v.telefone)}</p>
-              </div>
-            </div>
+            <Card className="p-5">
+              <p className="tpl-eyebrow mb-2">Contato</p>
+              <p className="text-sm text-[var(--tpl-text-primary)]">📱 {formatPhone(v.telefone)}</p>
+            </Card>
 
-            {/* Observações */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Observações</p>
+            <Card className="p-5">
+              <p className="tpl-eyebrow mb-2">Observações</p>
               {v.observacoes ? (
-                <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{v.observacoes}</p>
+                <p className="text-sm text-[var(--tpl-text-primary)] leading-relaxed whitespace-pre-line">{v.observacoes}</p>
               ) : (
-                <p className="text-sm text-slate-400 italic">Nenhuma observação registrada.</p>
+                <p className="text-sm text-[var(--tpl-text-muted)] italic">Nenhuma observação registrada.</p>
               )}
-            </div>
+            </Card>
 
-            {/* Ações */}
-            <button onClick={remover} disabled={removendo}
-              className="w-full py-3 rounded-xl font-semibold text-sm border border-red-200 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-60">
+            <Button variant="outlineDanger" fullWidth disabled={removendo} onClick={remover}>
               {removendo ? 'Removendo…' : 'Remover voluntário'}
-            </button>
+            </Button>
           </>
         )}
-
       </div>
-    </main>
+    </AdminShell>
   )
 }

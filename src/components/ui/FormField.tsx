@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 
-// Classe padrão para inputs/textarea/select do protótipo — label sempre visível
-// (aplicado via FormField), foco visível via .tpl-av *:focus-visible.
+// Classe padrão para inputs/textarea/select — label sempre visível (aplicado
+// via FormField), foco visível via *:focus-visible em globals.css.
 export const tplInputClass =
   'w-full border-2 border-[var(--tpl-border)] rounded-xl px-4 py-3 text-sm bg-white text-[var(--tpl-text-primary)] outline-none transition-colors focus:border-[var(--tpl-primary)] placeholder:text-[var(--tpl-text-muted)] min-h-[44px]'
 

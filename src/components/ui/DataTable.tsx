@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils'
 
 // Lista de registros em cards empilhados em vez de <table> — em telas de
-// celular uma tabela tradicional força rolagem horizontal e é difícil de ler
-// para o público-alvo deste sistema. Cada "linha" já é responsiva por natureza.
+// celular uma tabela tradicional força rolagem horizontal e é difícil de ler.
+// Cada "linha" já é responsiva por natureza.
 export function DataList({ children, className }: { children: React.ReactNode; className?: string }) {
   return <div className={cn('space-y-2', className)}>{children}</div>
 }

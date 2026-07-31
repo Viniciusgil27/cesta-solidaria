@@ -1,15 +1,15 @@
 'use client'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
+import { useSession, signOut } from 'next-auth/react'
 import { cn } from '@/lib/utils'
-import { mockAdminLogado } from '@/lib/template-alternativa/mock-data'
 
 const NAV = [
-  { href: '/template-visual/admin', label: 'Painel', icon: '🏠' },
-  { href: '/template-visual/admin/pendentes', label: 'Pendentes', icon: '🕐' },
-  { href: '/template-visual/admin/beneficiarios', label: 'Famílias', icon: '👥' },
-  { href: '/template-visual/admin/entrega', label: 'Entrega', icon: '🧺' },
-  { href: '/template-visual/admin/voluntarios', label: 'Voluntários', icon: '🙋' },
+  { href: '/admin', label: 'Painel', icon: '🏠' },
+  { href: '/admin/pendentes', label: 'Pendentes', icon: '🕐' },
+  { href: '/admin/beneficiarios', label: 'Famílias', icon: '👥' },
+  { href: '/admin/entrega', label: 'Entrega', icon: '🧺' },
+  { href: '/admin/voluntarios', label: 'Voluntários', icon: '🙋' },
 ]
 
 interface AdminShellProps {
@@ -19,17 +19,17 @@ interface AdminShellProps {
   children: React.ReactNode
 }
 
-// Navegação persistente da área administrativa do protótipo. O app real não
-// tem nenhum componente equivalente — cada tela repete seu próprio cabeçalho
-// e não existe navegação entre seções administrativas sem voltar ao painel.
+// Navegação persistente da área administrativa — o app não tinha nenhum
+// componente equivalente antes: cada tela repetia seu próprio cabeçalho e
+// não havia navegação entre seções administrativas sem voltar ao painel.
 export function AdminShell({ title, backHref, headerAction, children }: AdminShellProps) {
   const pathname = usePathname()
-  const router = useRouter()
+  const { data: session } = useSession()
 
   return (
     <div className="min-h-[100dvh] flex flex-col sm:flex-row">
       <aside className="hidden sm:flex sm:flex-col w-60 flex-shrink-0 bg-[var(--tpl-primary)] text-white p-5">
-        <Link href="/template-visual/admin" className="font-tpl-serif font-bold text-lg mb-8 flex items-center gap-2">
+        <Link href="/admin" className="font-tpl-serif font-bold text-lg mb-8 flex items-center gap-2">
           <span aria-hidden="true">🧺</span> Cesta Solidária
         </Link>
         <nav className="space-y-1 flex-1">
@@ -49,12 +49,9 @@ export function AdminShell({ title, backHref, headerAction, children }: AdminShe
         </nav>
         <div className="pt-4 border-t border-white/15">
           <p className="text-xs text-white/60 mb-2">Conectado como</p>
-          <p className="text-sm font-semibold mb-3">{mockAdminLogado.nome}</p>
-          <button
-            onClick={() => router.push('/template-visual/admin/login')}
-            className="text-xs text-white/70 hover:text-white text-left"
-          >
-            ← Sair (protótipo)
+          <p className="text-sm font-semibold mb-3">{session?.user?.name ?? 'Administrador'}</p>
+          <button onClick={() => signOut({ callbackUrl: '/' })} className="text-xs text-white/70 hover:text-white text-left">
+            ← Sair
           </button>
         </div>
       </aside>

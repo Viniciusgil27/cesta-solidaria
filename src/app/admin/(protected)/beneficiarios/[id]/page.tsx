@@ -2,9 +2,14 @@
 // src/app/admin/(protected)/beneficiarios/[id]/page.tsx
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { formatCPF, formatPhone, formatDateTime, totalMoradores } from '@/lib/utils'
+import { formatCPF, formatPhone, formatDateTime, totalMoradores, iniciais } from '@/lib/utils'
 import type { Beneficiario } from '@/types'
+import { AdminShell } from '@/components/ui/AdminShell'
+import { Card } from '@/components/ui/Card'
+import { Badge } from '@/components/ui/Badge'
+import { Button, ButtonLink } from '@/components/ui/Button'
+import { LoadingState } from '@/components/ui/LoadingState'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 const FAIXAS = [
   { key: 'criancas',     label: 'Crianças',      sub: '0 a 12 anos' },
@@ -12,6 +17,9 @@ const FAIXAS = [
   { key: 'adultos',      label: 'Adultos',         sub: '18 a 59 anos' },
   { key: 'idosos',       label: 'Idosos',          sub: '60 anos ou mais' },
 ]
+
+const badgeTone = { APROVADO: 'success', PENDENTE: 'warning', REJEITADO: 'danger' } as const
+const badgeLabel = { APROVADO: 'Aprovado', PENDENTE: 'Pendente', REJEITADO: 'Rejeitado' } as const
 
 export default function VerFamiliaPage() {
   const { id } = useParams<{ id: string }>()
@@ -35,153 +43,95 @@ export default function VerFamiliaPage() {
 
   if (carregando) {
     return (
-      <main className="min-h-screen bg-slate-50">
-        <header className="px-5 py-4 flex items-center gap-3" style={{ background: 'var(--roxo)' }}>
-          <Link href="/admin/beneficiarios" className="text-white text-xl leading-none">‹</Link>
-          <p className="text-white text-sm font-semibold">Família</p>
-        </header>
-        <div className="flex items-center justify-center pt-20 text-slate-400 text-sm">Carregando…</div>
-      </main>
+      <AdminShell title="Família" backHref="/admin/beneficiarios">
+        <LoadingState />
+      </AdminShell>
     )
   }
 
   if (!b) {
     return (
-      <main className="min-h-screen bg-slate-50">
-        <header className="px-5 py-4 flex items-center gap-3" style={{ background: 'var(--roxo)' }}>
-          <Link href="/admin/beneficiarios" className="text-white text-xl leading-none">‹</Link>
-          <p className="text-white text-sm font-semibold">Família</p>
-        </header>
-        <div className="text-center pt-20 text-slate-400">
-          <p className="text-3xl mb-2">🔍</p>
-          <p className="text-sm">Beneficiário não encontrado.</p>
-        </div>
-      </main>
+      <AdminShell title="Família" backHref="/admin/beneficiarios">
+        <EmptyState icon="🔍" title="Beneficiário não encontrado" />
+      </AdminShell>
     )
   }
 
   const total = totalMoradores(b)
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <header className="px-5 py-4 flex items-center gap-3" style={{ background: 'var(--roxo)' }}>
-        <Link href="/admin/beneficiarios" className="text-white text-xl leading-none">‹</Link>
-        <p className="text-white text-sm font-semibold flex-1 truncate">{b.nome}</p>
-        <Link href={`/admin/beneficiarios/${id}/editar`}
-          className="text-xs px-3 py-1.5 rounded-lg font-medium"
-          style={{ background: 'rgba(255,255,255,0.15)', color: 'white' }}>
-          Editar
-        </Link>
-      </header>
-
-      <div className="p-5 max-w-lg mx-auto space-y-4">
-
-        {/* Avatar + nome */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-lg flex-shrink-0"
-            style={{ background: 'var(--roxo-bg)', color: 'var(--roxo-med)' }}>
-            {b.nome.split(' ').filter(Boolean).slice(0, 2).map(n => n[0]).join('').toUpperCase()}
+    <AdminShell title={b.nome} backHref="/admin/beneficiarios"
+      headerAction={<ButtonLink href={`/admin/beneficiarios/${id}/editar`} size="md" className="!py-1.5 !px-3 !text-xs">Editar</ButtonLink>}>
+      <div className="space-y-4">
+        <Card className="p-5 flex items-start gap-4">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-lg flex-shrink-0 bg-[var(--tpl-primary-soft)] text-[var(--tpl-primary)]">
+            {iniciais(b.nome)}
           </div>
-          <div className="min-w-0">
-            <p className="font-bold text-slate-800 truncate">{b.nome}</p>
-            <p className="text-sm text-slate-500 mt-0.5">{formatCPF(b.cpf)}</p>
-            <p className="text-xs mt-1 font-medium" style={{ color: 'var(--roxo-med)' }}>
-              {total} morador{total !== 1 ? 'es' : ''} na casa
-            </p>
+          <div className="flex-1 min-w-0">
+            <h2 className="font-tpl-serif font-bold text-xl text-[var(--tpl-text-primary)]">{b.nome}</h2>
+            <p className="text-sm text-[var(--tpl-text-secondary)]">{formatCPF(b.cpf)}</p>
+            <div className="mt-2"><Badge tone={badgeTone[b.statusCadastro]}>{badgeLabel[b.statusCadastro]}</Badge></div>
           </div>
-        </div>
+        </Card>
 
-        {/* Status do cadastro */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-2">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Status do cadastro</p>
-            <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
-              b.statusCadastro === 'APROVADO' ? 'bg-green-100 text-green-700' :
-              b.statusCadastro === 'REJEITADO' ? 'bg-red-100 text-red-700' :
-              'bg-amber-100 text-amber-700'
-            }`}>
-              {b.statusCadastro === 'APROVADO' ? 'Aprovado' : b.statusCadastro === 'REJEITADO' ? 'Rejeitado' : 'Pendente'}
-            </span>
-          </div>
+        {/* Detalhes do status */}
+        <Card className="p-5">
+          <p className="tpl-eyebrow mb-2">Status do cadastro</p>
           {b.statusCadastro === 'APROVADO' && b.aprovadoEm && (
-            <p className="text-sm text-slate-500">Aprovado em {formatDateTime(b.aprovadoEm)}</p>
+            <p className="text-sm text-[var(--tpl-text-secondary)]">Aprovado em {formatDateTime(b.aprovadoEm)}</p>
           )}
           {b.statusCadastro === 'PENDENTE' && (
-            <p className="text-sm text-slate-500">Aguardando análise da equipe.</p>
+            <p className="text-sm text-[var(--tpl-text-secondary)]">Aguardando análise da equipe.</p>
           )}
           {b.statusCadastro === 'REJEITADO' && (
             <>
               {b.rejeitadoEm && (
-                <p className="text-sm text-slate-500">Rejeitado em {formatDateTime(b.rejeitadoEm)}</p>
+                <p className="text-sm text-[var(--tpl-text-secondary)] mb-2">Rejeitado em {formatDateTime(b.rejeitadoEm)}</p>
               )}
               {b.motivoRejeicao && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-3 mt-1">
-                  <p className="text-xs font-semibold text-red-700 mb-0.5">Motivo</p>
-                  <p className="text-sm text-red-700">{b.motivoRejeicao}</p>
+                <div className="bg-[var(--tpl-danger-soft)] border border-red-200 rounded-xl p-3">
+                  <p className="text-xs font-semibold text-[var(--tpl-danger)] mb-0.5">Motivo</p>
+                  <p className="text-sm text-[var(--tpl-text-primary)]">{b.motivoRejeicao}</p>
                 </div>
               )}
             </>
           )}
-        </div>
+        </Card>
 
-        {/* Contato e endereço */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Contato e endereço</p>
+        <Card className="p-5">
+          <p className="tpl-eyebrow mb-3">Contato e endereço</p>
           {b.telefone ? (
-            <div className="flex items-center gap-3">
-              <span className="text-slate-400 text-base w-5 text-center">📱</span>
-              <p className="text-sm text-slate-700">{formatPhone(b.telefone)}</p>
-            </div>
+            <p className="text-sm text-[var(--tpl-text-primary)] mb-2">📱 {formatPhone(b.telefone)}</p>
           ) : (
-            <p className="text-sm text-slate-400 italic">Telefone não informado</p>
+            <p className="text-sm text-[var(--tpl-text-muted)] italic mb-2">Telefone não informado</p>
           )}
           {(b.endereco || b.bairro) ? (
-            <div className="flex items-start gap-3">
-              <span className="text-slate-400 text-base w-5 text-center mt-0.5">📍</span>
-              <div>
-                {b.endereco && <p className="text-sm text-slate-700">{b.endereco}</p>}
-                {b.bairro && <p className="text-sm text-slate-500">{b.bairro}</p>}
-              </div>
-            </div>
+            <p className="text-sm text-[var(--tpl-text-primary)]">📍 {[b.endereco, b.bairro].filter(Boolean).join(' · ')}</p>
           ) : (
-            <p className="text-sm text-slate-400 italic">Endereço não informado</p>
+            <p className="text-sm text-[var(--tpl-text-muted)] italic">Endereço não informado</p>
           )}
-        </div>
+        </Card>
 
-        {/* Moradores */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Moradores por faixa etária</p>
-          <div className="grid grid-cols-2 gap-2.5">
+        <Card className="p-5">
+          <p className="tpl-eyebrow mb-3">Composição familiar</p>
+          <div className="grid grid-cols-4 gap-2 text-center">
             {FAIXAS.map(f => (
-              <div key={f.key} className="rounded-xl p-3 text-center" style={{ background: 'var(--roxo-bg)' }}>
-                <p className="text-2xl font-bold" style={{ color: 'var(--roxo)' }}>
-                  {(b as any)[f.key]}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-0.5">{f.label}</p>
-                <p className="text-xs text-slate-400">{f.sub}</p>
+              <div key={f.key}>
+                <p className="text-lg font-bold text-[var(--tpl-primary)]">{(b as any)[f.key]}</p>
+                <p className="text-[10px] text-[var(--tpl-text-muted)] uppercase">{f.label}</p>
               </div>
             ))}
           </div>
-          <div className="mt-3 pt-3 border-t border-slate-100 flex justify-between items-center">
-            <p className="text-xs text-slate-500">Total de moradores</p>
-            <p className="font-bold text-sm" style={{ color: 'var(--roxo)' }}>{total}</p>
-          </div>
-        </div>
+          <p className="text-center text-xs text-[var(--tpl-text-muted)] mt-3">{total} pessoas na casa, ao todo</p>
+        </Card>
 
-        {/* Ações */}
         <div className="flex gap-3">
-          <Link href={`/admin/beneficiarios/${id}/editar`}
-            className="flex-1 py-3 rounded-xl text-white font-semibold text-sm text-center"
-            style={{ background: 'var(--roxo)' }}>
-            Editar dados
-          </Link>
-          <button onClick={remover} disabled={removendo}
-            className="flex-1 py-3 rounded-xl font-semibold text-sm border border-red-200 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-60">
+          <ButtonLink href={`/admin/beneficiarios/${id}/editar`} fullWidth>Editar dados</ButtonLink>
+          <Button variant="outlineDanger" fullWidth disabled={removendo} onClick={remover}>
             {removendo ? 'Removendo…' : 'Remover família'}
-          </button>
+          </Button>
         </div>
-
       </div>
-    </main>
+    </AdminShell>
   )
 }

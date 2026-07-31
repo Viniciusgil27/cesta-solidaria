@@ -1,103 +1,87 @@
-# Protótipo visual "Alternativa de Vida" — resumo para próximas sessões
+# Identidade visual "Alternativa de Vida" — histórico e estado atual
 
 > Este documento existe para que qualquer pessoa (ou instância do Claude) que
 > abra este repo depois entenda rapidamente o que foi feito, por quê, e o que
-> falta decidir. Não é uma feature em produção — é um protótipo de comparação.
+> falta decidir.
 
-## O que é
+## Status: promovido a produção
 
-Uma proposta visual alternativa para o sistema, inspirada na identidade do
-site institucional **alternativadevida.com.br** (mesmo ecossistema — Comunidade
-Batista Alternativa de Vida), construída como réplica navegável de **todas as
-telas reais do sistema**, isolada do app em produção.
+Isto começou como um protótipo isolado em `/template-visual` (identidade
+vinho/creme, Playfair Display + Inter, componentes reutilizáveis), aprovado
+pelo usuário depois de corrigir dois bugs de layout mobile. Em seguida foi
+**promovido para produção**: a aparência antiga (roxo `#3C2A6E`, sem
+componentes reutilizáveis) foi substituída em todas as páginas reais, mantendo
+100% da lógica de negócio (Prisma, NextAuth, upload, import/export Excel).
 
-Objetivo: comparar lado a lado o visual atual vs. essa proposta, sem nenhum
-risco para o sistema em uso.
-
-## Onde está / como acessar
-
-Nada foi alterado em arquivos existentes — só arquivos novos:
+O protótipo isolado (`src/app/template-visual`, `src/components/template-alternativa`,
+`src/lib/template-alternativa`, `src/styles/template-alternativa.css`) **não
+existe mais** — foi removido depois da promoção. O que sobrou é definitivo:
 
 ```
-src/app/template-visual/**            # 21 rotas (espelham as rotas reais)
-src/components/template-alternativa/** # 13 componentes reutilizáveis
-src/lib/template-alternativa/**        # dados fictícios + helpers de formatação
-src/styles/template-alternativa.css    # tokens de cor/tipografia, escopados em .tpl-av
+src/app/globals.css                 # tokens --tpl-* em :root (era escopado em .tpl-av no protótipo)
+src/app/layout.tsx                  # fontes Inter + Playfair Display via next/font
+src/app/manifest.ts                 # cores do PWA atualizadas
+src/components/ui/**                # 13 componentes (Button, Card, Badge, FormField, Modal,
+                                     # ConfirmDialog, Toast, EmptyState, LoadingState, DataTable,
+                                     # StatCard, Header, Footer, AdminShell)
+src/components/admin/SignOutButton.tsx, NovaEntregaButton.tsx   # reskin, lógica inalterada
 ```
 
-Rodando `npm run dev`, o protótipo fica em `http://localhost:3000/template-visual`
-e o sistema real continua normalmente em `http://localhost:3000/`. Não há link
-algum apontando para o protótipo a partir da UI real — acesso só por URL direta.
+Todas as ~20 páginas reais (públicas e `/admin/**`) foram reescritas para usar
+`src/components/ui/*`, preservando exatamente as mesmas chamadas de API,
+queries Prisma e handlers que já existiam.
 
 ## Decisões de design (resumo)
 
-Extraídas do CSS real do site de referência (não de suposição visual):
+Extraídas do CSS real do site de referência **alternativadevida.com.br** (não
+de suposição visual — via `curl` na home + nos bundles `_next/static/chunks/*.css`):
 
-- **Cor primária**: vinho `#8b2020` (site usa "cobavi-700"), não o roxo `--roxo`
-  (`#3C2A6E`) do app atual.
-- **Fundo**: creme `#fdf6e8`, não cinza `slate-50`.
-- **Tipografia**: `Playfair Display` (serifada, títulos) + `Inter` (corpo) —
-  via `next/font/google`, sem dependência nova.
-- Todos os tokens ficam em `src/styles/template-alternativa.css`, escopados em
-  `.tpl-av` — nunca em `:root`, para não vazar para o resto do site.
+- **Cor primária**: vinho `#8b2020` (tokens `--tpl-primary*`).
+- **Fundo**: creme `#fdf6e8` (era cinza `slate-50`).
+- **Tipografia**: `Playfair Display` (serifada, títulos) + `Inter` (corpo).
+- Cor de erro/rejeição (`--tpl-danger`, vermelho puro) é **deliberadamente
+  diferente** da cor da marca, para não confundir "ação primária" com "erro".
+- Listas administrativas usam cards empilhados (`DataList`/`DataRow`), não
+  `<table>` — mobile-first, evita rolagem horizontal.
+- `AdminShell` (sidebar desktop / tab-bar mobile) é uma navegação que **não
+  existia antes** no app real — cada página admin era uma ilha sem link entre
+  telas.
 
-Decisões deliberadas que fogem da cópia literal do site de referência:
-- Cor de erro/rejeição (`--tpl-danger`, vermelho puro) é **diferente** da cor
-  da marca (vinho), para não confundir "ação primária" com "erro".
-- Listas administrativas usam cards empilhados, não `<table>` (mobile-first).
-- Sem fotos de estoque — hero usa bloco de cor/gradiente.
-- Nenhuma imagem real de comprovante de residência é exibida, nem no
-  protótipo (é só um bloco ilustrativo com texto).
+## Bugs mobile corrigidos durante a migração
 
-## O que foi (e não foi) implementado
+Dois bugs de layout em telas pequenas (320px), encontrados no protótipo e
+replicados intencionalmente no app real antes da promoção:
 
-Implementado: todas as 12 telas do sistema real (públicas + admin), com
-componentes reutilizáveis (Button, Card, Badge, FormField, Modal,
-ConfirmDialog, Toast, EmptyState, LoadingState, DataTable, StatCard, Header,
-Footer, AdminShell), estados de sucesso/erro/vazio/carregamento, dados 100%
-fictícios em `src/lib/template-alternativa/mock-data.ts`.
+1. **Lista de beneficiários/voluntários**: nome + 3 (ou 2) botões de ação na
+   mesma linha espremiam o texto até quebrar letra por letra. Corrigido
+   empilhando avatar+texto numa linha e os botões numa grade abaixo, só em
+   telas pequenas.
+2. **Busca de CPF (`/admin/entrega`)**: campo de input sem `min-w-0` num
+   flexbox não conseguia encolher, empurrando o botão "Buscar" para fora da
+   tela. Corrigido com `min-w-0` no input + `flex-shrink-0` no botão.
 
-**Não implementado (por escopo, intencional):** nenhuma regra de negócio nova,
-nenhuma migration/alteração no Prisma, nenhuma autenticação real, nenhum
-upload real, nenhuma persistência — tudo roda em estado local (`useState`),
-reseta ao recarregar a página.
+## Funcionalidades restauradas na promoção (o protótipo simulava, produção não pode)
 
-## Validação já feita
+- `/admin/pendentes` mostra a **imagem real** do comprovante de residência
+  (`b.comprovanteUrl`), não um placeholder.
+- `/consulta` e `/admin/entrega` chamam as API routes reais
+  (`/api/consulta/[cpf]`, `/api/beneficiarios/cpf/[cpf]`).
+- Login usa `signIn('credentials', ...)` real do NextAuth.
+- Import/export de Excel mantêm 100% a lógica `xlsx` client-side + API routes
+  reais (nada foi simplificado).
 
-- `npx tsc --noEmit` → sem erros
-- `npx next build` → build de produção completo, 47 rotas geradas
-  (as 21 novas + as originais), sem impacto no tamanho/comportamento das
-  rotas existentes
-- Todas as 20 páginas navegáveis testadas uma a uma via dev server (200 OK)
-- `git status` confirmou isolamento total (só diretórios novos, nada
-  modificado)
+## Pendências conhecidas
 
-## Próximos passos (decisões pendentes do usuário)
+- **Ícones PWA** (`/public/icons/icon-*.png`) ainda têm a cor roxa antiga
+  embutida na imagem — não foram regenerados (fora do escopo desta migração,
+  exigiria arte nova).
+- Configurar `.env` local (`DATABASE_URL` etc. — ver `.env.example`) continua
+  necessário para rodar o sistema completo localmente; não tem relação com
+  esta migração visual.
 
-1. **Decidir se a direção visual agrada** — comparar `/` vs `/template-visual`
-   e telas admin correspondentes.
-2. Se aprovado, decidir **estratégia de migração**: não é para copiar/colar o
-   protótipo por cima do app real de uma vez — o ideal é migrar
-   progressivamente (tokens primeiro, depois componentes, depois páginas),
-   já que o app atual não tem componentes reutilizáveis (cada página
-   reimplementa seu próprio header/botão/card).
-3. Se aprovado, **extrair os componentes reais reutilizáveis** (fora do
-   namespace `template-alternativa`) e ligá-los a dados reais/Prisma/API —
-   isso é trabalho de implementação, não coberto por este protótipo.
-4. Avaliar se vale reaproveitar o `AdminShell` (sidebar/tab-bar) no app real —
-   é uma melhoria de navegação que falta hoje independente da decisão visual.
-5. Configurar `.env` local (`DATABASE_URL`, etc. — ver `.env.example`) se
-   quiser testar o sistema real (`/`) localmente; isso é independente do
-   protótipo.
-6. Quando a decisão for tomada, **apagar `template-visual`,
-   `template-alternativa` e `template-alternativa.css`** se o protótipo for
-   descartado, ou iniciar a migração incremental se for aprovado.
+## Validação executada
 
-## Referência
-
-Relatório de análise completo (paleta extraída do CSS, tipografia, UX,
-mapa de páginas do site de referência) foi apresentado no chat antes da
-implementação — não foi salvo como arquivo separado. Se precisar dele de
-novo, refazer a análise em alternativadevida.com.br é rápido (ver método:
-`curl` na home + nos bundles `_next/static/chunks/*.css` para extrair tokens
-reais em vez de estimar visualmente).
+- `npx tsc --noEmit` e `npx next build` (não `npm run build`, para não
+  disparar `prisma db push` contra o Supabase real).
+- Smoke test de todas as rotas reais via dev server.
+- Conferência visual mobile (320px) das telas que tinham bug conhecido.
