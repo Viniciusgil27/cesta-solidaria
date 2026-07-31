@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { FormField, tplInputClass } from '@/components/ui/FormField'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -23,41 +26,33 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col" style={{ background: 'var(--roxo)' }}>
+    <main className="min-h-screen flex flex-col tpl-hero-scrim">
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="bg-white rounded-2xl p-7 w-full max-w-sm">
-          <h2 className="text-xl font-bold mb-1" style={{ color: 'var(--roxo)' }}>Área administrativa</h2>
-          <p className="text-sm text-slate-500 mb-6">Acesso restrito à equipe da Igreja AltVida.</p>
+        <Card className="p-7 w-full max-w-sm">
+          <h1 className="font-tpl-serif font-bold text-xl text-[var(--tpl-text-primary)] mb-1">Área administrativa</h1>
+          <p className="text-sm text-[var(--tpl-text-secondary)] mb-6">Acesso restrito à equipe da Igreja AltVida.</p>
 
           {erro && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 text-sm text-red-700">{erro}</div>
+            <div className="bg-[var(--tpl-danger-soft)] border border-red-200 rounded-xl p-3 mb-4 text-sm text-[var(--tpl-danger)] font-medium">{erro}</div>
           )}
 
           <form onSubmit={entrar} className="space-y-4">
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wide text-slate-500 block mb-1.5">Email</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-                className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-sm bg-white outline-none focus:border-purple-400 transition-colors"
-                placeholder="seu@email.com" autoComplete="email" required />
-            </div>
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wide text-slate-500 block mb-1.5">Senha</label>
-              <input type="password" value={senha} onChange={e => setSenha(e.target.value)}
-                className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-sm bg-white outline-none focus:border-purple-400 transition-colors"
-                placeholder="••••••••" autoComplete="current-password" required />
-            </div>
-            <button type="submit" disabled={loading}
-              className="w-full py-3.5 rounded-xl text-white font-semibold text-sm disabled:opacity-60 transition-opacity"
-              style={{ background: 'var(--roxo)' }}>
+            <FormField label="Email" htmlFor="email" required>
+              <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)}
+                className={tplInputClass} placeholder="seu@email.com" autoComplete="email" required />
+            </FormField>
+            <FormField label="Senha" htmlFor="senha" required>
+              <input id="senha" type="password" value={senha} onChange={e => setSenha(e.target.value)}
+                className={tplInputClass} placeholder="••••••••" autoComplete="current-password" required />
+            </FormField>
+            <Button type="submit" fullWidth size="lg" disabled={loading}>
               {loading ? 'Entrando…' : 'Entrar'}
-            </button>
+            </Button>
           </form>
-        </div>
+        </Card>
       </div>
       <div className="pb-6 text-center">
-        <Link href="/" className="text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
-          ← Voltar para o início
-        </Link>
+        <Link href="/" className="text-sm text-white/70 hover:text-white">← Voltar para o início</Link>
       </div>
     </main>
   )

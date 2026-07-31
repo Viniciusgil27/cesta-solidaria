@@ -1,9 +1,15 @@
 'use client'
 // src/app/admin/(protected)/pendentes/page.tsx
 import { useState, useEffect, useCallback } from 'react'
-import Link from 'next/link'
-import { formatCPF, totalMoradores } from '@/lib/utils'
+import { formatCPF, totalMoradores, iniciais } from '@/lib/utils'
 import type { Beneficiario } from '@/types'
+import { AdminShell } from '@/components/ui/AdminShell'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Modal } from '@/components/ui/Modal'
+import { Toast } from '@/components/ui/Toast'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { LoadingState } from '@/components/ui/LoadingState'
 
 export default function PendentesPage() {
   const [lista, setLista] = useState<Beneficiario[]>([])
@@ -12,6 +18,7 @@ export default function PendentesPage() {
   const [imagemAberta, setImagemAberta] = useState<string | null>(null)
   const [rejeitando, setRejeitando] = useState<{ id: string; nome: string } | null>(null)
   const [motivo, setMotivo] = useState('')
+  const [toast, setToast] = useState<string | null>(null)
 
   const carregar = useCallback(async () => {
     setCarregando(true)
@@ -22,10 +29,11 @@ export default function PendentesPage() {
 
   useEffect(() => { carregar() }, [carregar])
 
-  async function aprovar(id: string) {
+  async function aprovar(id: string, nome: string) {
     setProcessando(id)
     await fetch(`/api/beneficiarios/${id}/aprovar`, { method: 'PUT' })
     setProcessando(null)
+    setToast(`Cadastro de ${nome} aprovado.`)
     carregar()
   }
 
@@ -38,49 +46,38 @@ export default function PendentesPage() {
       body: JSON.stringify({ motivo: motivo.trim() }),
     })
     setProcessando(null)
+    setToast(`Cadastro de ${rejeitando.nome} rejeitado.`)
     setRejeitando(null)
     setMotivo('')
     carregar()
   }
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <header className="px-5 py-4 flex items-center gap-3" style={{ background: 'var(--roxo)' }}>
-        <Link href="/admin" className="text-white text-xl leading-none">‹</Link>
-        <p className="text-white text-sm font-semibold flex-1">Cadastros pendentes</p>
-        {!carregando && lista.length > 0 && (
-          <span className="text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-400 text-amber-900">
-            {lista.length}
-          </span>
-        )}
-      </header>
-
-      <div className="p-5 max-w-lg mx-auto space-y-4">
-        <p className="text-xs text-slate-400">
+    <AdminShell title="Cadastros pendentes" backHref="/admin"
+      headerAction={!carregando && lista.length > 0 && (
+        <span className="text-xs px-2.5 py-1 rounded-full font-bold bg-amber-400 text-amber-900">{lista.length}</span>
+      )}>
+      <div className="space-y-4">
+        <p className="text-xs text-[var(--tpl-text-muted)]">
           Cadastros realizados pelo site que aguardam confirmação do administrador.
         </p>
 
-        {carregando && (
-          <p className="text-sm text-slate-400 text-center py-8">Carregando…</p>
-        )}
+        {carregando && <LoadingState />}
 
         {!carregando && lista.length === 0 && (
-          <div className="text-center py-12 text-slate-400">
-            <p className="text-3xl mb-2">✅</p>
-            <p className="text-sm">Nenhum cadastro pendente de aprovação.</p>
-          </div>
+          <EmptyState icon="✅" title="Tudo em dia" description="Nenhum cadastro pendente de aprovação." />
         )}
 
         <div className="space-y-3">
           {lista.map(b => (
-            <div key={b.id} className="bg-white border-2 border-amber-200 rounded-xl overflow-hidden">
+            <Card key={b.id} className="overflow-hidden border-2 border-amber-200">
 
-              {/* Comprovante de residência */}
               {b.comprovanteUrl ? (
                 <button
                   type="button"
                   onClick={() => setImagemAberta(b.comprovanteUrl ?? null)}
                   className="w-full relative group">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={b.comprovanteUrl}
                     alt="Comprovante de residência"
@@ -93,28 +90,26 @@ export default function PendentesPage() {
                   </div>
                 </button>
               ) : (
-                <div className="w-full h-14 bg-slate-100 flex items-center justify-center">
-                  <p className="text-xs text-slate-400">Sem comprovante enviado</p>
+                <div className="w-full h-14 bg-[var(--tpl-surface-muted)] flex items-center justify-center">
+                  <p className="text-xs text-[var(--tpl-text-muted)]">Sem comprovante enviado</p>
                 </div>
               )}
 
               <div className="p-4 space-y-3">
-                {/* Dados */}
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0"
-                    style={{ background: 'var(--roxo-bg)', color: 'var(--roxo-med)' }}>
-                    {b.nome.split(' ').filter(Boolean).slice(0, 2).map(n => n[0]).join('').toUpperCase()}
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0 bg-[var(--tpl-primary-soft)] text-[var(--tpl-primary)]">
+                    {iniciais(b.nome)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800">{b.nome}</p>
-                    <p className="text-xs text-slate-500">{formatCPF(b.cpf)}</p>
-                    {b.telefone && <p className="text-xs text-slate-500">{b.telefone}</p>}
+                    <p className="text-sm font-semibold text-[var(--tpl-text-primary)]">{b.nome}</p>
+                    <p className="text-xs text-[var(--tpl-text-secondary)]">{formatCPF(b.cpf)}</p>
+                    {b.telefone && <p className="text-xs text-[var(--tpl-text-secondary)]">{b.telefone}</p>}
                     {b.endereco && (
-                      <p className="text-xs text-slate-500 truncate">
+                      <p className="text-xs text-[var(--tpl-text-secondary)] truncate">
                         {b.endereco}{b.bairro ? ` · ${b.bairro}` : ''}
                       </p>
                     )}
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-[var(--tpl-text-muted)] mt-0.5">
                       {totalMoradores(b)} morador{totalMoradores(b) !== 1 ? 'es' : ''}
                       {b.criancas > 0 && ` · ${b.criancas} criança${b.criancas > 1 ? 's' : ''}`}
                       {b.adolescentes > 0 && ` · ${b.adolescentes} adolescente${b.adolescentes > 1 ? 's' : ''}`}
@@ -123,7 +118,7 @@ export default function PendentesPage() {
                   </div>
                 </div>
 
-                <p className="text-xs text-amber-600 font-medium">
+                <p className="text-xs text-[var(--tpl-warning)] font-medium">
                   Solicitado em {new Date(b.criadoEm).toLocaleString('pt-BR', {
                     day: '2-digit', month: '2-digit', year: 'numeric',
                     hour: '2-digit', minute: '2-digit',
@@ -131,89 +126,66 @@ export default function PendentesPage() {
                   })}
                 </p>
 
-                {/* Ações */}
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => { setRejeitando({ id: b.id, nome: b.nome }); setMotivo('') }}
-                    disabled={processando === b.id}
-                    className="flex-1 py-2.5 rounded-xl text-red-600 font-semibold text-sm border-2 border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50">
+                  <Button variant="outlineDanger" size="md" fullWidth disabled={processando === b.id}
+                    onClick={() => { setRejeitando({ id: b.id, nome: b.nome }); setMotivo('') }}>
                     Rejeitar
-                  </button>
-                  <button
-                    onClick={() => aprovar(b.id)}
-                    disabled={processando === b.id}
-                    className="flex-1 py-2.5 rounded-xl text-white font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
-                    style={{ background: 'var(--roxo)' }}>
+                  </Button>
+                  <Button variant="primary" size="md" fullWidth disabled={processando === b.id}
+                    onClick={() => aprovar(b.id, b.nome)}>
                     {processando === b.id ? 'Processando…' : 'Aprovar'}
-                  </button>
+                  </Button>
                 </div>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       </div>
 
       {/* Modal de visualização do comprovante */}
-      {imagemAberta && (
-        <div
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-          onClick={() => setImagemAberta(null)}>
-          <div className="relative max-w-lg w-full" onClick={e => e.stopPropagation()}>
-            <button
-              onClick={() => setImagemAberta(null)}
-              className="absolute -top-10 right-0 text-white text-2xl font-bold leading-none">
-              ✕
-            </button>
+      <Modal open={!!imagemAberta} onClose={() => setImagemAberta(null)} title="Comprovante de residência">
+        {imagemAberta && (
+          <div className="space-y-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={imagemAberta}
               alt="Comprovante de residência"
-              className="w-full rounded-xl max-h-[80vh] object-contain"
+              className="w-full rounded-xl max-h-[70vh] object-contain bg-[var(--tpl-surface-muted)]"
             />
             <a
               href={imagemAberta}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 block text-center text-sm text-white/70 underline">
+              className="block text-center text-sm text-[var(--tpl-primary)] underline">
               Abrir em nova aba
             </a>
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
 
       {/* Modal de motivo da rejeição */}
-      {rejeitando && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => setRejeitando(null)}>
-          <div className="bg-white rounded-2xl p-5 w-full max-w-sm" onClick={e => e.stopPropagation()}>
-            <p className="font-bold text-slate-800 mb-1">Rejeitar cadastro</p>
-            <p className="text-sm text-slate-500 mb-4">
-              Informe o motivo da rejeição de <strong>{rejeitando.nome}</strong>. Esse motivo será exibido para a pessoa na consulta de cadastro.
-            </p>
-            <textarea
-              value={motivo}
-              onChange={e => setMotivo(e.target.value)}
-              rows={3}
-              autoFocus
-              placeholder="Ex: Comprovante de residência ilegível."
-              className="w-full border-2 border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-red-300 transition-colors resize-none"
-            />
-            <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => setRejeitando(null)}
-                className="flex-1 py-2.5 rounded-xl text-slate-600 font-semibold text-sm border-2 border-slate-200 hover:bg-slate-50 transition-colors">
-                Cancelar
-              </button>
-              <button
-                onClick={confirmarRejeicao}
-                disabled={!motivo.trim() || processando === rejeitando.id}
-                className="flex-1 py-2.5 rounded-xl text-white font-semibold text-sm bg-red-600 hover:opacity-90 transition-opacity disabled:opacity-50">
-                {processando === rejeitando.id ? 'Enviando…' : 'Confirmar rejeição'}
-              </button>
-            </div>
-          </div>
+      <Modal open={!!rejeitando} onClose={() => setRejeitando(null)} title="Rejeitar cadastro">
+        <p className="text-sm text-[var(--tpl-text-secondary)] mb-4">
+          Informe o motivo da rejeição de <strong>{rejeitando?.nome}</strong>. Esse motivo será exibido para a pessoa
+          na consulta de cadastro.
+        </p>
+        <textarea
+          value={motivo}
+          onChange={e => setMotivo(e.target.value)}
+          rows={3}
+          autoFocus
+          placeholder="Ex: Comprovante de residência ilegível."
+          className="w-full border-2 border-[var(--tpl-border)] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[var(--tpl-danger)] transition-colors resize-none"
+        />
+        <div className="flex gap-2 mt-4">
+          <Button variant="ghost" fullWidth onClick={() => setRejeitando(null)}>Cancelar</Button>
+          <Button variant="danger" fullWidth disabled={!motivo.trim() || processando === rejeitando?.id} onClick={confirmarRejeicao}>
+            {processando === rejeitando?.id ? 'Enviando…' : 'Confirmar rejeição'}
+          </Button>
         </div>
-      )}
-    </main>
+      </Modal>
+
+      {toast && <Toast message={toast} tone="success" onClose={() => setToast(null)} />}
+    </AdminShell>
   )
 }

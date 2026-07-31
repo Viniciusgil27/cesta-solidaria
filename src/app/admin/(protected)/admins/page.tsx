@@ -1,8 +1,14 @@
 'use client'
 // src/app/admin/(protected)/admins/page.tsx
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import { useSession } from 'next-auth/react'
+import { iniciais } from '@/lib/utils'
+import { AdminShell } from '@/components/ui/AdminShell'
+import { DataList, DataRow } from '@/components/ui/DataTable'
+import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { Modal } from '@/components/ui/Modal'
+import { FormField, tplInputClass } from '@/components/ui/FormField'
 
 type Admin = { id: string; nome: string; email: string; superAdmin: boolean; ativo: boolean; criadoEm: string }
 
@@ -56,101 +62,71 @@ export default function AdminsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <header className="px-5 py-4 flex items-center gap-3" style={{ background: 'var(--roxo)' }}>
-        <Link href="/admin" className="text-white text-xl leading-none">‹</Link>
-        <p className="text-white text-sm font-semibold flex-1">Gerenciar admins</p>
-        {isSuperAdmin && (
-          <button onClick={() => setModal(true)}
-            className="text-xs px-3 py-1.5 rounded-lg font-medium"
-            style={{ background: 'rgba(255,255,255,0.15)', color: 'white' }}>
-            + Novo
-          </button>
-        )}
-      </header>
-
-      <div className="p-5 max-w-md mx-auto">
+    <AdminShell title="Gerenciar admins" backHref="/admin"
+      headerAction={isSuperAdmin && (
+        <Button size="md" className="!py-1.5 !px-3 !text-xs" onClick={() => setModal(true)}>+ Novo</Button>
+      )}>
+      <div className="space-y-4">
         {!isSuperAdmin && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 text-sm text-amber-700">
+          <div className="bg-[var(--tpl-warning-soft)] border border-amber-200 rounded-xl p-3 text-sm text-[var(--tpl-warning)]">
             Somente o super admin pode gerenciar outros admins.
           </div>
         )}
 
-        <div className="space-y-2.5">
+        <DataList>
           {admins.map(a => (
-            <div key={a.id} className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0"
-                style={{ background: 'var(--roxo-bg)', color: 'var(--roxo-med)' }}>
-                {a.nome.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold truncate">{a.nome}</p>
-                  {a.superAdmin && (
-                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-semibold flex-shrink-0">Super</span>
-                  )}
-                  {!a.ativo && (
-                    <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full flex-shrink-0">Inativo</span>
-                  )}
+            <DataRow key={a.id} className="flex-col items-stretch sm:flex-row sm:items-center">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0 bg-[var(--tpl-primary-soft)] text-[var(--tpl-primary)]">
+                  {iniciais(a.nome)}
                 </div>
-                <p className="text-xs text-slate-400 truncate">{a.email}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-sm font-semibold truncate text-[var(--tpl-text-primary)]">{a.nome}</p>
+                    {a.superAdmin && <Badge tone="primary">Super</Badge>}
+                    {!a.ativo && <Badge tone="neutral">Inativo</Badge>}
+                  </div>
+                  <p className="text-xs text-[var(--tpl-text-muted)] truncate">{a.email}</p>
+                </div>
               </div>
               {isSuperAdmin && !a.superAdmin && (
-                <div className="flex gap-1.5 flex-shrink-0">
+                <div className="grid grid-cols-2 gap-1.5 sm:flex sm:flex-shrink-0">
                   <button onClick={() => toggleAtivo(a.id, a.ativo)}
-                    className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">
+                    className="text-xs px-2.5 py-1.5 rounded-lg border border-[var(--tpl-border)] text-[var(--tpl-text-secondary)] hover:bg-[var(--tpl-surface-muted)] transition-colors">
                     {a.ativo ? 'Desativar' : 'Ativar'}
                   </button>
                   <button onClick={() => remover(a.id, a.nome)}
-                    className="text-xs px-2.5 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors">
+                    className="text-xs px-2.5 py-1.5 rounded-lg border border-red-200 text-[var(--tpl-danger)] hover:bg-[var(--tpl-danger-soft)] transition-colors">
                     Remover
                   </button>
                 </div>
               )}
-            </div>
+            </DataRow>
           ))}
-        </div>
+        </DataList>
       </div>
 
-      {/* Modal novo admin */}
-      {modal && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-end justify-center" onClick={e => e.target === e.currentTarget && setModal(false)}>
-          <div className="bg-white rounded-t-2xl p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-slate-800">Novo administrador</h3>
-              <button onClick={() => setModal(false)} className="text-slate-400 text-xl">✕</button>
-            </div>
+      <Modal open={modal} onClose={() => setModal(false)} title="Novo administrador">
+        {erro && <div className="bg-[var(--tpl-danger-soft)] border border-red-200 rounded-xl p-3 mb-3 text-sm text-[var(--tpl-danger)] font-medium">{erro}</div>}
 
-            {erro && <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-3 text-sm text-red-700">{erro}</div>}
-
-            <form onSubmit={criar} className="space-y-3">
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500 block mb-1.5">Nome</label>
-                <input value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))}
-                  className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-purple-400"
-                  placeholder="Nome completo" required />
-              </div>
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500 block mb-1.5">Email</label>
-                <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                  className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-purple-400"
-                  placeholder="email@altvida.org" required />
-              </div>
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500 block mb-1.5">Senha inicial</label>
-                <input type="password" value={form.senha} onChange={e => setForm(f => ({ ...f, senha: e.target.value }))}
-                  className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-purple-400"
-                  placeholder="Mínimo 8 caracteres" required minLength={8} />
-              </div>
-              <button type="submit" disabled={loading}
-                className="w-full py-3.5 rounded-xl text-white font-semibold text-sm mt-2 disabled:opacity-60"
-                style={{ background: 'var(--roxo)' }}>
-                {loading ? 'Criando…' : 'Criar administrador'}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-    </main>
+        <form onSubmit={criar} className="space-y-3">
+          <FormField label="Nome" htmlFor="a-nome" required>
+            <input id="a-nome" value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))}
+              className={tplInputClass} placeholder="Nome completo" required />
+          </FormField>
+          <FormField label="Email" htmlFor="a-email" required>
+            <input id="a-email" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+              className={tplInputClass} placeholder="email@altvida.org" required />
+          </FormField>
+          <FormField label="Senha inicial" htmlFor="a-senha" required>
+            <input id="a-senha" type="password" value={form.senha} onChange={e => setForm(f => ({ ...f, senha: e.target.value }))}
+              className={tplInputClass} placeholder="Mínimo 8 caracteres" required minLength={8} />
+          </FormField>
+          <Button type="submit" fullWidth disabled={loading} className="mt-2">
+            {loading ? 'Criando…' : 'Criar administrador'}
+          </Button>
+        </form>
+      </Modal>
+    </AdminShell>
   )
 }

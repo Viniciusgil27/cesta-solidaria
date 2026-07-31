@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Plataforma de distribuição de cestas básicas da Comunidade Batista Alternativa de Vida · Jaraguá',
     start_url: '/',
     display: 'standalone',
-    background_color: '#F0EBF8',
-    theme_color: '#3C2A6E',
+    background_color: '#fdf6e8',
+    theme_color: '#8b2020',
     icons: [
       { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
       { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },

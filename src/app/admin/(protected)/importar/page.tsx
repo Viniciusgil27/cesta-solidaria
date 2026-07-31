@@ -1,8 +1,11 @@
 'use client'
 // src/app/admin/(protected)/importar/page.tsx
 import { useState, useRef } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { AdminShell } from '@/components/ui/AdminShell'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { cn } from '@/lib/utils'
 
 type Linha = { nome: string; cpf: string; telefone?: string; endereco?: string; bairro?: string }
 
@@ -64,92 +67,83 @@ export default function ImportarPage() {
   const preview = linhas.slice(0, 8)
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <header className="px-5 py-4 flex items-center gap-3" style={{ background: 'var(--roxo)' }}>
-        <Link href="/admin" className="text-white text-xl leading-none">‹</Link>
-        <p className="text-white text-sm font-semibold">Importar Excel</p>
-      </header>
+    <AdminShell title="Importar Excel" backHref="/admin">
+      <div className="space-y-4">
 
-      <div className="p-5 max-w-lg mx-auto space-y-4">
-
-        {/* Aviso de formato */}
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-700 leading-relaxed">
+        <div className="bg-[var(--tpl-warning-soft)] border border-amber-200 rounded-xl p-3.5 text-xs text-[var(--tpl-warning)] leading-relaxed">
           ℹ️ O Excel deve ter colunas: <strong>nome</strong>, <strong>cpf</strong>, <strong>telefone</strong>, <strong>endereco</strong>, <strong>bairro</strong>.
           CPFs novos serão adicionados; CPFs existentes serão atualizados.
         </div>
 
-        {/* Resultado de importação */}
         {resultado && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-            <p className="font-semibold text-green-800 text-sm mb-1">✅ Importação concluída!</p>
-            <p className="text-xs text-green-700 leading-relaxed">
+          <div className="bg-[var(--tpl-success-soft)] border border-emerald-200 rounded-xl p-4">
+            <p className="font-semibold text-[var(--tpl-success)] text-sm mb-1">✅ Importação concluída!</p>
+            <p className="text-xs text-[var(--tpl-text-secondary)] leading-relaxed">
               {resultado.adicionados} novo{resultado.adicionados !== 1 ? 's' : ''} cadastro{resultado.adicionados !== 1 ? 's' : ''} · {' '}
               {resultado.atualizados} atualizado{resultado.atualizados !== 1 ? 's' : ''} · {' '}
               {resultado.ignorados} ignorado{resultado.ignorados !== 1 ? 's' : ''}
             </p>
             <button onClick={() => router.push('/admin/beneficiarios')}
-              className="mt-3 text-xs font-semibold text-green-700 underline">
+              className="mt-3 text-xs font-semibold text-[var(--tpl-success)] underline">
               Ver beneficiários →
             </button>
           </div>
         )}
 
-        {erro && <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">{erro}</div>}
+        {erro && <div className="bg-[var(--tpl-danger-soft)] border border-red-200 rounded-xl p-3 text-sm text-[var(--tpl-danger)] font-medium">{erro}</div>}
 
-        {/* Drop zone */}
         {!linhas.length && !resultado && (
           <div
             onClick={() => inputRef.current?.click()}
             onDragOver={e => { e.preventDefault(); setDrag(true) }}
             onDragLeave={() => setDrag(false)}
             onDrop={onDrop}
-            className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors ${
-              drag ? 'border-purple-400 bg-purple-50' : 'border-slate-300 bg-white hover:border-purple-300 hover:bg-purple-50'
-            }`}>
-            <p className="text-4xl mb-3">📂</p>
-            <p className="font-semibold text-slate-700 text-sm mb-1">Clique ou arraste o arquivo aqui</p>
-            <p className="text-xs text-slate-400">.xlsx ou .xls</p>
+            className={cn(
+              'border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors',
+              drag ? 'border-[var(--tpl-primary)] bg-[var(--tpl-primary-soft)]' : 'border-[var(--tpl-border)] bg-[var(--tpl-surface-card)] hover:border-[var(--tpl-primary)] hover:bg-[var(--tpl-primary-soft)]'
+            )}>
+            <p className="text-4xl mb-3" aria-hidden="true">📂</p>
+            <p className="font-semibold text-[var(--tpl-text-primary)] text-sm mb-1">Clique ou arraste o arquivo aqui</p>
+            <p className="text-xs text-[var(--tpl-text-muted)]">.xlsx ou .xls</p>
           </div>
         )}
 
         <input ref={inputRef} type="file" accept=".xlsx,.xls" className="hidden"
           onChange={e => { if (e.target.files?.[0]) lerArquivo(e.target.files[0]); e.target.value = '' }} />
 
-        {/* Preview */}
         {linhas.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              <p className="text-xs font-bold uppercase tracking-wider text-[var(--tpl-text-muted)]">
                 {nomeArquivo} — {linhas.length} registro{linhas.length !== 1 ? 's' : ''}
               </p>
               <button onClick={() => { setLinhas([]); setNomeArquivo('') }}
-                className="text-xs text-slate-400 hover:text-red-500 transition-colors">
+                className="text-xs text-[var(--tpl-text-muted)] hover:text-[var(--tpl-danger)] transition-colors">
                 ✕ Limpar
               </button>
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <Card className="overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr style={{ background: 'var(--roxo-bg)' }}>
+                    <tr className="bg-[var(--tpl-primary-soft)]">
                       {COLUNAS.map(c => (
-                        <th key={c} className="px-3 py-2 text-left font-semibold uppercase tracking-wide text-xs"
-                          style={{ color: 'var(--roxo-med)' }}>{c}</th>
+                        <th key={c} className="px-3 py-2 text-left font-semibold uppercase tracking-wide text-xs text-[var(--tpl-primary)]">{c}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {preview.map((row, i) => (
-                      <tr key={i} className="border-t border-slate-100">
+                      <tr key={i} className="border-t border-[var(--tpl-border)]">
                         {COLUNAS.map(c => (
-                          <td key={c} className="px-3 py-2 text-slate-700 max-w-[120px] truncate">{row[c] || '—'}</td>
+                          <td key={c} className="px-3 py-2 text-[var(--tpl-text-secondary)] max-w-[120px] truncate">{row[c] || '—'}</td>
                         ))}
                       </tr>
                     ))}
                     {linhas.length > 8 && (
-                      <tr className="border-t border-slate-100">
-                        <td colSpan={5} className="px-3 py-2 text-center text-slate-400 italic">
+                      <tr className="border-t border-[var(--tpl-border)]">
+                        <td colSpan={5} className="px-3 py-2 text-center text-[var(--tpl-text-muted)] italic">
                           … e mais {linhas.length - 8} registros
                         </td>
                       </tr>
@@ -157,16 +151,14 @@ export default function ImportarPage() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </Card>
 
-            <button onClick={importar} disabled={importando}
-              className="w-full py-3.5 rounded-xl text-white font-semibold text-sm disabled:opacity-60 transition-opacity"
-              style={{ background: 'var(--roxo)' }}>
+            <Button onClick={importar} disabled={importando} fullWidth>
               {importando ? 'Importando…' : `Importar ${linhas.length} registro${linhas.length !== 1 ? 's' : ''} para a base`}
-            </button>
+            </Button>
           </div>
         )}
       </div>
-    </main>
+    </AdminShell>
   )
 }
