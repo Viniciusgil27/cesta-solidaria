@@ -99,11 +99,11 @@ export default function EditarBeneficiarioPage() {
             <input id="nome" className={tplInputClass} placeholder="Nome da família" value={form.nome} onChange={e => set('nome', e.target.value)} required />
           </FormField>
           <FormField label="CPF" htmlFor="cpf" required>
-            <input id="cpf" className={tplInputClass} placeholder="000.000.000-00" inputMode="numeric" value={form.cpf} maxLength={14}
+            <input id="cpf" className={tplInputClass + ' font-tpl-legible'} placeholder="000.000.000-00" inputMode="numeric" value={form.cpf} maxLength={14}
               onChange={e => set('cpf', formatCPF(e.target.value))} required />
           </FormField>
           <FormField label="Telefone" htmlFor="telefone">
-            <input id="telefone" className={tplInputClass} placeholder="(19) 9 0000-0000" type="tel" value={form.telefone}
+            <input id="telefone" className={tplInputClass + ' font-tpl-legible'} placeholder="(19) 9 0000-0000" type="tel" value={form.telefone}
               onChange={e => set('telefone', formatPhone(e.target.value))} />
           </FormField>
         </Card>

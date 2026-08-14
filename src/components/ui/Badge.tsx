@@ -13,7 +13,7 @@ const toneClasses: Record<Tone, string> = {
 // Status sempre com texto + cor (nunca só cor), para não depender de percepção de cor.
 export function Badge({ tone = 'neutral', children, className }: { tone?: Tone; children: React.ReactNode; className?: string }) {
   return (
-    <span className={cn('inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap', toneClasses[tone], className)}>
+    <span className={cn('font-tpl-legible inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap', toneClasses[tone], className)}>
       <span className="w-1.5 h-1.5 rounded-full bg-current flex-shrink-0" aria-hidden="true" />
       {children}
     </span>

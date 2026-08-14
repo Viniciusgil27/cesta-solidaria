@@ -108,11 +108,11 @@ export default function VerVoluntarioPage() {
                 <input id="v-nome" className={tplInputClass} value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} required />
               </FormField>
               <FormField label="CPF" htmlFor="v-cpf" required>
-                <input id="v-cpf" className={tplInputClass} placeholder="000.000.000-00" inputMode="numeric" maxLength={14}
+                <input id="v-cpf" className={tplInputClass + ' font-tpl-legible'} placeholder="000.000.000-00" inputMode="numeric" maxLength={14}
                   value={form.cpf} onChange={e => setForm(f => ({ ...f, cpf: formatCPF(e.target.value) }))} required />
               </FormField>
               <FormField label="Telefone" htmlFor="v-telefone">
-                <input id="v-telefone" className={tplInputClass} placeholder="(19) 9 0000-0000" type="tel"
+                <input id="v-telefone" className={tplInputClass + ' font-tpl-legible'} placeholder="(19) 9 0000-0000" type="tel"
                   value={form.telefone} onChange={e => setForm(f => ({ ...f, telefone: formatPhone(e.target.value) }))} />
               </FormField>
               <FormField label="Observações" htmlFor="v-obs">
@@ -135,8 +135,8 @@ export default function VerVoluntarioPage() {
               </div>
               <div className="min-w-0">
                 <p className="font-tpl-serif font-bold text-lg text-[var(--tpl-text-primary)] truncate">{v.nome}</p>
-                <p className="text-sm text-[var(--tpl-text-secondary)] mt-0.5">{formatCPF(v.cpf)}</p>
-                <p className="text-xs text-[var(--tpl-text-muted)] mt-1">Cadastrado em {formatDateTime(v.criadoEm)}</p>
+                <p className="text-sm text-[var(--tpl-text-secondary)] mt-0.5 font-tpl-legible">{formatCPF(v.cpf)}</p>
+                <p className="text-xs text-[var(--tpl-text-muted)] mt-1">Cadastrado em <span className="font-tpl-legible">{formatDateTime(v.criadoEm)}</span></p>
               </div>
             </Card>
 
@@ -152,7 +152,7 @@ export default function VerVoluntarioPage() {
 
             <Card className="p-5">
               <p className="tpl-eyebrow mb-2">Contato</p>
-              <p className="text-sm text-[var(--tpl-text-primary)]">📱 {formatPhone(v.telefone)}</p>
+              <p className="text-sm text-[var(--tpl-text-primary)] font-tpl-legible">📱 {formatPhone(v.telefone)}</p>
             </Card>
 
             <Card className="p-5">

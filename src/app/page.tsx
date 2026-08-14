@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { formatDateTime } from '@/lib/utils'
+import { formatDataDestaque } from '@/lib/utils'
 import { Header } from '@/components/ui/Header'
 import { Footer } from '@/components/ui/Footer'
 import { ButtonLink } from '@/components/ui/Button'
@@ -21,6 +21,7 @@ async function getEntregaAtiva() {
 // mais por atenção na primeira tela.
 export default async function HomePage() {
   const entrega = await getEntregaAtiva()
+  const destaque = entrega ? formatDataDestaque(entrega.data) : null
 
   return (
     <main className="min-h-[100dvh]">
@@ -38,12 +39,18 @@ export default async function HomePage() {
           <p className="text-sm font-bold uppercase tracking-wide text-[var(--tpl-primary)] mb-2">
             📅 Próxima entrega de cestas
           </p>
-          {entrega ? (
+          {entrega && destaque ? (
             <>
-              <p className="font-tpl-serif text-3xl font-bold text-[var(--tpl-text-primary)] leading-snug">
-                {formatDateTime(entrega.data)}
+              <p className="font-tpl-legible font-bold text-xl uppercase tracking-wide text-[var(--tpl-primary)]">
+                {destaque.diaSemana}
               </p>
-              <p className="text-lg text-[var(--tpl-text-secondary)] mt-2">{entrega.local}</p>
+              <p className="font-tpl-legible font-bold text-3xl text-[var(--tpl-text-primary)] leading-snug mt-1">
+                {destaque.diaMes}
+              </p>
+              <p className="font-tpl-legible text-xl text-[var(--tpl-text-secondary)] mt-1">
+                às {destaque.hora}
+              </p>
+              <p className="text-lg text-[var(--tpl-text-secondary)] mt-3">{entrega.local}</p>
             </>
           ) : (
             <p className="text-xl text-[var(--tpl-text-muted)] py-1">Aguardando confirmação da equipe</p>

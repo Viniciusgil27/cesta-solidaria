@@ -43,7 +43,7 @@ export default function LoginPage() {
             </FormField>
             <FormField label="Senha" htmlFor="senha" required>
               <input id="senha" type="password" value={senha} onChange={e => setSenha(e.target.value)}
-                className={tplInputClass} placeholder="••••••••" autoComplete="current-password" required />
+                className={tplInputClass + ' font-tpl-legible'} placeholder="••••••••" autoComplete="current-password" required />
             </FormField>
             <Button type="submit" fullWidth size="lg" disabled={loading}>
               {loading ? 'Entrando…' : 'Entrar'}

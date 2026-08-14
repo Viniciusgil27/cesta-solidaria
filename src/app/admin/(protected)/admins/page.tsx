@@ -120,7 +120,7 @@ export default function AdminsPage() {
           </FormField>
           <FormField label="Senha inicial" htmlFor="a-senha" required>
             <input id="a-senha" type="password" value={form.senha} onChange={e => setForm(f => ({ ...f, senha: e.target.value }))}
-              className={tplInputClass} placeholder="Mínimo 8 caracteres" required minLength={8} />
+              className={tplInputClass + ' font-tpl-legible'} placeholder="Mínimo 8 caracteres" required minLength={8} />
           </FormField>
           <Button type="submit" fullWidth disabled={loading} className="mt-2">
             {loading ? 'Criando…' : 'Criar administrador'}
