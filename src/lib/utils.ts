@@ -59,6 +59,18 @@ export function formatDateTime(date: string | Date): string {
   return `${dataPart} às ${horaPart}`
 }
 
+// Formato por extenso pra exibição em destaque (ex: card de "próxima
+// entrega") — dia da semana e mês por extenso, mais fácil de ler que
+// "15/08/2026" pra quem tem dificuldade de interpretar datas numéricas.
+export function formatDataDestaque(date: string | Date): { diaSemana: string; diaMes: string; hora: string } {
+  const d = new Date(date)
+  return {
+    diaSemana: d.toLocaleDateString('pt-BR', { weekday: 'long', timeZone: 'America/Sao_Paulo' }),
+    diaMes: d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', timeZone: 'America/Sao_Paulo' }),
+    hora: d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }),
+  }
+}
+
 export function totalMoradores(b: { criancas: number; adolescentes: number; adultos: number; idosos: number }) {
   return b.criancas + b.adolescentes + b.adultos + b.idosos
 }

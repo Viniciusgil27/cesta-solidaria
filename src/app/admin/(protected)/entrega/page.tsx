@@ -89,7 +89,7 @@ export default function EntregaPage() {
               onChange={(e) => { setCpf(formatCPF(e.target.value)); setStatus('idle') }}
               onKeyDown={(e) => e.key === 'Enter' && buscar()}
               type="text" inputMode="numeric" placeholder="000.000.000-00" maxLength={14}
-              className="flex-1 min-w-0 border-2 border-[var(--tpl-border)] rounded-xl px-4 py-3 text-base outline-none focus:border-[var(--tpl-primary)] bg-white tracking-wider" />
+              className="font-tpl-legible flex-1 min-w-0 border-2 border-[var(--tpl-border)] rounded-xl px-4 py-3 text-base outline-none focus:border-[var(--tpl-primary)] bg-white tracking-wider" />
             <Button onClick={buscar} disabled={loading || cpf.replace(/\D/g, '').length < 11} className="flex-shrink-0">
               {loading ? '…' : 'Buscar'}
             </Button>
@@ -124,7 +124,7 @@ export default function EntregaPage() {
                 <div key={i} className="bg-[var(--tpl-surface-card)] border border-[var(--tpl-border)] rounded-xl px-4 py-3 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-[var(--tpl-text-primary)]">{c.nome}</p>
-                    <p className="text-xs text-[var(--tpl-text-muted)] mt-0.5">{formatCPF(c.cpf)}</p>
+                    <p className="text-xs text-[var(--tpl-text-muted)] mt-0.5 font-tpl-legible">{formatCPF(c.cpf)}</p>
                   </div>
                   <span className="text-xs font-bold bg-[var(--tpl-success-soft)] text-[var(--tpl-success)] px-2.5 py-1 rounded-full">Retirou</span>
                 </div>
