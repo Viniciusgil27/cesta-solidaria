@@ -65,7 +65,7 @@ export default function HistoricoPage() {
           <Card key={e.id} className="p-4">
             <div className="flex items-start justify-between gap-3 mb-3">
               <div>
-                <p className="font-tpl-serif font-bold text-sm text-[var(--tpl-primary)]">
+                <p className="font-tpl-legible font-bold text-sm text-[var(--tpl-primary)]">
                   📦 Entrega de {formatDate(e.data)}
                 </p>
                 <p className="text-xs text-[var(--tpl-text-secondary)] mt-0.5">{e.local}</p>
@@ -81,7 +81,7 @@ export default function HistoricoPage() {
                 { n: `${pct(e)}%`, l: 'Atendidos', cor: 'text-[var(--tpl-primary)]' },
               ].map(s => (
                 <div key={s.l} className="text-center rounded-xl py-2 bg-[var(--tpl-surface-muted)]">
-                  <p className={`text-base font-bold ${s.cor}`}>{s.n}</p>
+                  <p className={`text-base font-bold font-tpl-legible ${s.cor}`}>{s.n}</p>
                   <p className="text-xs text-[var(--tpl-text-muted)] mt-0.5">{s.l}</p>
                 </div>
               ))}

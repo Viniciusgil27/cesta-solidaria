@@ -102,8 +102,8 @@ export default function PendentesPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-[var(--tpl-text-primary)]">{b.nome}</p>
-                    <p className="text-xs text-[var(--tpl-text-secondary)]">{formatCPF(b.cpf)}</p>
-                    {b.telefone && <p className="text-xs text-[var(--tpl-text-secondary)]">{b.telefone}</p>}
+                    <p className="text-xs text-[var(--tpl-text-secondary)] font-tpl-legible">{formatCPF(b.cpf)}</p>
+                    {b.telefone && <p className="text-xs text-[var(--tpl-text-secondary)] font-tpl-legible">{b.telefone}</p>}
                     {b.endereco && (
                       <p className="text-xs text-[var(--tpl-text-secondary)] truncate">
                         {b.endereco}{b.bairro ? ` · ${b.bairro}` : ''}
@@ -118,7 +118,7 @@ export default function PendentesPage() {
                   </div>
                 </div>
 
-                <p className="text-xs text-[var(--tpl-warning)] font-medium">
+                <p className="text-xs text-[var(--tpl-warning)] font-medium font-tpl-legible">
                   Solicitado em {new Date(b.criadoEm).toLocaleString('pt-BR', {
                     day: '2-digit', month: '2-digit', year: 'numeric',
                     hour: '2-digit', minute: '2-digit',

@@ -40,6 +40,13 @@
   font-family: var(--font-tpl-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Uso restrito a dados críticos (CPF, telefone, datas/horários, senha,
+   status, números) — não é a fonte de corpo geral. Ver layout.tsx. */
+.font-tpl-legible {
+  font-family: var(--font-tpl-legible), ui-sans-serif, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
 .tpl-eyebrow {
   font-size: 0.7rem;
   font-weight: 700;

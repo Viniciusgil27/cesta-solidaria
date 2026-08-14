@@ -68,11 +68,11 @@ export default function VoluntariosPage() {
                 onChange={e => set('nome', e.target.value)} autoComplete="name" />
             </FormField>
             <FormField label="CPF" htmlFor="cpf" required>
-              <input id="cpf" className={tplInputClass} placeholder="000.000.000-00" inputMode="numeric" maxLength={14}
+              <input id="cpf" className={tplInputClass + ' font-tpl-legible'} placeholder="000.000.000-00" inputMode="numeric" maxLength={14}
                 value={form.cpf} onChange={e => set('cpf', formatCPF(e.target.value))} />
             </FormField>
             <FormField label="WhatsApp" htmlFor="telefone" required>
-              <input id="telefone" type="tel" className={tplInputClass} placeholder="(19) 9 0000-0000" value={form.telefone}
+              <input id="telefone" type="tel" className={tplInputClass + ' font-tpl-legible'} placeholder="(19) 9 0000-0000" value={form.telefone}
                 onChange={e => set('telefone', formatPhone(e.target.value))} autoComplete="tel" />
             </FormField>
           </Card>

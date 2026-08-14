@@ -69,7 +69,7 @@ export default function VerFamiliaPage() {
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="font-tpl-serif font-bold text-xl text-[var(--tpl-text-primary)]">{b.nome}</h2>
-            <p className="text-sm text-[var(--tpl-text-secondary)]">{formatCPF(b.cpf)}</p>
+            <p className="text-sm text-[var(--tpl-text-secondary)] font-tpl-legible">{formatCPF(b.cpf)}</p>
             <div className="mt-2"><Badge tone={badgeTone[b.statusCadastro]}>{badgeLabel[b.statusCadastro]}</Badge></div>
           </div>
         </Card>
@@ -78,7 +78,7 @@ export default function VerFamiliaPage() {
         <Card className="p-5">
           <p className="tpl-eyebrow mb-2">Status do cadastro</p>
           {b.statusCadastro === 'APROVADO' && b.aprovadoEm && (
-            <p className="text-sm text-[var(--tpl-text-secondary)]">Aprovado em {formatDateTime(b.aprovadoEm)}</p>
+            <p className="text-sm text-[var(--tpl-text-secondary)]">Aprovado em <span className="font-tpl-legible">{formatDateTime(b.aprovadoEm)}</span></p>
           )}
           {b.statusCadastro === 'PENDENTE' && (
             <p className="text-sm text-[var(--tpl-text-secondary)]">Aguardando análise da equipe.</p>
@@ -86,7 +86,7 @@ export default function VerFamiliaPage() {
           {b.statusCadastro === 'REJEITADO' && (
             <>
               {b.rejeitadoEm && (
-                <p className="text-sm text-[var(--tpl-text-secondary)] mb-2">Rejeitado em {formatDateTime(b.rejeitadoEm)}</p>
+                <p className="text-sm text-[var(--tpl-text-secondary)] mb-2">Rejeitado em <span className="font-tpl-legible">{formatDateTime(b.rejeitadoEm)}</span></p>
               )}
               {b.motivoRejeicao && (
                 <div className="bg-[var(--tpl-danger-soft)] border border-red-200 rounded-xl p-3">
@@ -101,7 +101,7 @@ export default function VerFamiliaPage() {
         <Card className="p-5">
           <p className="tpl-eyebrow mb-3">Contato e endereço</p>
           {b.telefone ? (
-            <p className="text-sm text-[var(--tpl-text-primary)] mb-2">📱 {formatPhone(b.telefone)}</p>
+            <p className="text-sm text-[var(--tpl-text-primary)] mb-2 font-tpl-legible">📱 {formatPhone(b.telefone)}</p>
           ) : (
             <p className="text-sm text-[var(--tpl-text-muted)] italic mb-2">Telefone não informado</p>
           )}
@@ -117,7 +117,7 @@ export default function VerFamiliaPage() {
           <div className="grid grid-cols-4 gap-2 text-center">
             {FAIXAS.map(f => (
               <div key={f.key}>
-                <p className="text-lg font-bold text-[var(--tpl-primary)]">{(b as any)[f.key]}</p>
+                <p className="text-lg font-bold font-tpl-legible text-[var(--tpl-primary)]">{(b as any)[f.key]}</p>
                 <p className="text-[10px] text-[var(--tpl-text-muted)] uppercase">{f.label}</p>
               </div>
             ))}

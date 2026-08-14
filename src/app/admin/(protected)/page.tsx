@@ -2,7 +2,7 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { formatDateTime } from '@/lib/utils'
+import { formatDataDestaque } from '@/lib/utils'
 import Link from 'next/link'
 import { SignOutButton } from '@/components/admin/SignOutButton'
 import { NovaEntregaButton } from '@/components/admin/NovaEntregaButton'
@@ -29,6 +29,7 @@ export default async function AdminPage() {
   const totalRetiraram = entregaAtiva?._count.retiradas ?? 0
   const totalPendentes = totalBeneficiarios - totalRetiraram
   const pct = totalBeneficiarios ? Math.round(totalRetiraram / totalBeneficiarios * 100) : 0
+  const destaque = entregaAtiva ? formatDataDestaque(entregaAtiva.data) : null
 
   return (
     <AdminShell title="Painel administrativo" headerAction={<SignOutButton />}>
@@ -43,8 +44,8 @@ export default async function AdminPage() {
           <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${entregaAtiva ? 'text-[var(--tpl-success)]' : 'text-[var(--tpl-warning)]'}`}>
             {entregaAtiva ? 'Entrega ativa' : 'Nenhuma entrega ativa'}
           </p>
-          <p className="font-tpl-serif font-bold text-lg text-[var(--tpl-text-primary)]">
-            {entregaAtiva ? formatDateTime(entregaAtiva.data) : '—'}
+          <p className="font-tpl-legible font-bold text-lg text-[var(--tpl-text-primary)]">
+            {destaque ? `${destaque.diaSemana.charAt(0).toUpperCase()}${destaque.diaSemana.slice(1)}, ${destaque.diaMes} às ${destaque.hora}` : '—'}
           </p>
           <p className="text-sm text-[var(--tpl-text-secondary)] mt-0.5">
             {entregaAtiva ? entregaAtiva.local : 'Inicie uma nova entrega para começar a distribuição'}

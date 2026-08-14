@@ -123,7 +123,7 @@ export default function BeneficiariosPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate text-[var(--tpl-text-primary)]">{b.nome}</p>
-                  <p className="text-xs text-[var(--tpl-text-muted)] truncate">{formatCPF(b.cpf)} · {totalMoradores(b)} morador{totalMoradores(b) !== 1 ? 'es' : ''}</p>
+                  <p className="text-xs text-[var(--tpl-text-muted)] truncate"><span className="font-tpl-legible">{formatCPF(b.cpf)}</span> · {totalMoradores(b)} morador{totalMoradores(b) !== 1 ? 'es' : ''}</p>
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-1.5 sm:flex sm:flex-shrink-0">
@@ -166,7 +166,7 @@ export default function BeneficiariosPage() {
                 }}
                 placeholder={c.placeholder}
                 required={c.required}
-                className={tplInputClass}
+                className={c.key === 'cpf' || c.key === 'telefone' ? tplInputClass + ' font-tpl-legible' : tplInputClass}
               />
             </FormField>
           ))}

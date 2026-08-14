@@ -56,7 +56,7 @@ export default function ConsultaPage() {
 
         <form onSubmit={consultar} className="space-y-3">
           <FormField label="CPF" htmlFor="cpf-consulta">
-            <input id="cpf-consulta" className={tplInputClass} placeholder="000.000.000-00" inputMode="numeric" maxLength={14}
+            <input id="cpf-consulta" className={tplInputClass + ' font-tpl-legible'} placeholder="000.000.000-00" inputMode="numeric" maxLength={14}
               value={cpf} onChange={e => setCpf(formatCPF(e.target.value))} />
           </FormField>
 
@@ -97,9 +97,9 @@ export default function ConsultaPage() {
                 <p className="text-sm text-[var(--tpl-text-secondary)] mb-3">Seu cadastro foi aprovado.</p>
                 <div className="bg-white rounded-xl p-3.5 text-left text-sm space-y-1.5">
                   <p><span className="text-[var(--tpl-text-muted)]">Nome: </span><span className="font-semibold text-[var(--tpl-text-primary)]">{resultado.nome}</span></p>
-                  <p><span className="text-[var(--tpl-text-muted)]">CPF: </span><span className="font-semibold text-[var(--tpl-text-primary)]">{resultado.cpfMascarado}</span></p>
+                  <p><span className="text-[var(--tpl-text-muted)]">CPF: </span><span className="font-semibold font-tpl-legible text-[var(--tpl-text-primary)]">{resultado.cpfMascarado}</span></p>
                   {resultado.aprovadoEm && (
-                    <p><span className="text-[var(--tpl-text-muted)]">Aprovado em: </span><span className="font-semibold text-[var(--tpl-text-primary)]">{formatDateTime(resultado.aprovadoEm)}</span></p>
+                    <p><span className="text-[var(--tpl-text-muted)]">Aprovado em: </span><span className="font-semibold font-tpl-legible text-[var(--tpl-text-primary)]">{formatDateTime(resultado.aprovadoEm)}</span></p>
                   )}
                 </div>
               </div>

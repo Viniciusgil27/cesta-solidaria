@@ -68,7 +68,7 @@ export default function VoluntariosPage() {
                     <p className="text-sm font-semibold truncate text-[var(--tpl-text-primary)]">{v.nome}</p>
                     <Badge tone={v.status === 'ATIVO' ? 'success' : 'neutral'}>{v.status === 'ATIVO' ? 'Ativo' : 'Inativo'}</Badge>
                   </div>
-                  <p className="text-xs text-[var(--tpl-text-muted)] truncate">{formatCPF(v.cpf)} · {formatPhone(v.telefone)}</p>
+                  <p className="text-xs text-[var(--tpl-text-muted)] truncate font-tpl-legible">{formatCPF(v.cpf)} · {formatPhone(v.telefone)}</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-1.5 sm:flex sm:flex-shrink-0">
